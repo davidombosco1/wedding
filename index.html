@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yasmin & Davi - Nosso Casamento</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navegação -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="logo1.png" alt="Yasmin & Davi" class="logo-img">
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#inicio" class="nav-link">Início</a></li>
+                <li><a href="#nossa-historia" class="nav-link">Nossa História</a></li>
+                <li><a href="#cerimonia" class="nav-link">Cerimônia</a></li>
+                <li><a href="#confirmacao" class="nav-link">Confirmação</a></li>
+                <li><a href="#presentes" class="nav-link">Presentes</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Seção Inicial -->
+    <section id="inicio" class="hero">
+        <div class="hero-background">
+            <img src="IMG_7391.jpg" alt="Yasmin e Davi" class="hero-bg-image" onerror="this.style.display='none';">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <h1 class="hero-title">Yasmin & Davi</h1>
+            <p class="hero-subtitle">Serra dos Cristais, Jundiaí • 31 de Maio de 2026</p>
+            <div class="countdown-container">
+                <div class="countdown-item">
+                    <span class="countdown-number" id="days">00</span>
+                    <span class="countdown-label">Dias</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="hours">00</span>
+                    <span class="countdown-label">Horas</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="minutes">00</span>
+                    <span class="countdown-label">Minutos</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="countdown-number" id="seconds">00</span>
+                    <span class="countdown-label">Segundos</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Nossa História -->
+    <section id="nossa-historia" class="story-section">
+        <div class="container">
+            <h2 class="section-title">Nossa História</h2>
+        </div>
+        <div class="story-layout">
+            <div class="story-text-container">
+                <div class="story-text">
+                    <p>
+                        Nossa história começou com um encontro especial que mudou nossas vidas para sempre. 
+                        Cada momento compartilhado nos aproximou e nos fez perceber que estávamos destinados 
+                        a estar juntos.
+                    </p>
+                    <p>
+                        Após muitos momentos felizes, risos compartilhados e sonhos construídos juntos, 
+                        decidimos dar o próximo passo e unir nossas vidas em matrimônio.
+                    </p>
+                    <p>
+                        Será uma alegria imensa compartilhar este momento especial com todos vocês, 
+                        pessoas que fazem parte da nossa história e que amamos tanto.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Carrossel de Fotos -->
+            <div class="carousel-container">
+                <div class="carousel-wrapper">
+                    <div class="carousel-track" id="carousel-track">
+                        <!-- Fotos serão carregadas dinamicamente via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cerimônia -->
+    <section id="cerimonia" class="ceremony-section">
+        <div class="container">
+            <h2 class="section-title">Cerimônia</h2>
+            <div class="ceremony-info">
+                <div class="info-card">
+                    <div class="info-icon">📅</div>
+                    <h3>Data</h3>
+                    <p>31 de Maio de 2026</p>
+                    <p class="info-time">11:00 horas</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">📍</div>
+                    <h3>Local</h3>
+                    <p>Serra dos Cristais</p>
+                    <p class="info-location">Jundiaí - SP</p>
+                </div>
+            </div>
+            <div class="map-container">
+                <iframe 
+                    src="https://www.google.com/maps?q=rodovia+presidente+tancredo+de+almeida+neves+861+bairro+do+castanho+Jundiaí+SP&output=embed" 
+                    width="100%" 
+                    height="450" 
+                    style="border:0; border-radius: 15px;" 
+                    allowfullscreen="" 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            </div>
+        </div>
+    </section>
+
+    <!-- Confirmação de Presença -->
+    <section id="confirmacao" class="confirmation-section">
+        <div class="container">
+            <h2 class="section-title">Confirmação de Presença</h2>
+            <p class="section-subtitle">Sua presença é muito importante para nós!</p>
+            
+            <!-- Tela de entrada de código -->
+            <div id="code-entry-screen" class="confirmation-form">
+                <div class="form-group">
+                    <label for="guest-code">Digite seu código único do convite</label>
+                    <input type="text" id="guest-code" name="guest-code" placeholder="Ex: ABC123" required autocomplete="off">
+                    <small class="form-hint">O código foi enviado junto com seu convite</small>
+                </div>
+                <button type="button" id="search-code-btn" class="submit-btn">Buscar Convite</button>
+                <div id="code-error-message" class="confirmation-message"></div>
+            </div>
+
+            <!-- Tela de confirmação (aparece após buscar código) -->
+            <div id="confirmation-screen" class="confirmation-screen" style="display: none;">
+                <div class="guest-info-card">
+                    <h3 id="guest-name-display"></h3>
+                    <p class="guest-code-display">Código: <span id="guest-code-display"></span></p>
+                </div>
+
+                <div class="guests-list">
+                    <h4>Confirme a presença:</h4>
+                    <div id="guests-checkboxes"></div>
+                </div>
+
+                <form id="confirmation-form" class="confirmation-form">
+                    <div class="form-group">
+                        <label for="phone">Telefone para contato</label>
+                        <input type="tel" id="phone" name="phone" placeholder="(11) 99999-9999" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Mensagem (opcional)</label>
+                        <textarea id="message" name="message" rows="4" placeholder="Deixe uma mensagem para os noivos..."></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Confirmar Presença</button>
+                    <button type="button" id="back-to-code-btn" class="back-btn">Voltar</button>
+                </form>
+                <div id="confirmation-message" class="confirmation-message"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Presentes -->
+    <section id="presentes" class="gifts-section">
+        <div class="container">
+            <h2 class="section-title">Lista de Presentes</h2>
+            <p class="section-subtitle">Sua presença é o maior presente, mas se quiser nos presentear...</p>
+            <div class="gifts-grid">
+                <div class="gift-card" data-pix="SUA_CHAVE_PIX_AQUI">
+                    <div class="gift-icon">💍</div>
+                    <h3>Alianças</h3>
+                    <p>Ajude-nos a simbolizar nossa união</p>
+                </div>
+                <div class="gift-card" data-pix="SUA_CHAVE_PIX_AQUI">
+                    <div class="gift-icon">🏠</div>
+                    <h3>Lua de Mel</h3>
+                    <p>Contribua para nossa viagem especial</p>
+                </div>
+                <div class="gift-card" data-pix="SUA_CHAVE_PIX_AQUI">
+                    <div class="gift-icon">🍽️</div>
+                    <h3>Mesa e Cadeiras</h3>
+                    <p>Para recebermos bem nossa família</p>
+                </div>
+                <div class="gift-card" data-pix="SUA_CHAVE_PIX_AQUI">
+                    <div class="gift-icon">🛏️</div>
+                    <h3>Quarto</h3>
+                    <p>Para nosso novo lar</p>
+                </div>
+                <div class="gift-card" data-pix="SUA_CHAVE_PIX_AQUI">
+                    <div class="gift-icon">🍳</div>
+                    <h3>Cozinha</h3>
+                    <p>Para prepararmos refeições especiais</p>
+                </div>
+                <div class="gift-card" data-pix="SUA_CHAVE_PIX_AQUI">
+                    <div class="gift-icon">💝</div>
+                    <h3>Presente Surpresa</h3>
+                    <p>Escolha o valor que desejar</p>
+                </div>
+            </div>
+            <div id="pix-modal" class="pix-modal">
+                <div class="pix-modal-content">
+                    <span class="close-modal">&times;</span>
+                    <h3>Chave PIX</h3>
+                    <div class="pix-key-container">
+                        <p id="pix-key-display" class="pix-key"></p>
+                        <button id="copy-pix-btn" class="copy-btn">Copiar Chave PIX</button>
+                    </div>
+                    <p class="pix-note">Após o pagamento, envie o comprovante para nós!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer class="footer">
+        <div class="container">
+            <p>Com amor, Yasmin & Davi</p>
+            <p class="footer-date">31 de Maio de 2026</p>
+        </div>
+    </footer>
+
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        (function() {
+            // Configuração do Supabase
+            // IMPORTANTE: Substitua pelos seus dados do Supabase
+            const SUPABASE_URL = 'https://cevzvsfzlknqdtpmlckv.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNldnp2c2Z6bGtucWR0cG1sY2t2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY0NDk4MzcsImV4cCI6MjA4MjAyNTgzN30.y3qOxEo5M7bHV279Dw1ueCsSXMfECPXqSexWSWuZSZ8';
+            
+            // Inicializar Supabase e exportar para uso global
+            // Usar window.supabase se disponível, senão usar createClient diretamente
+            if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+                window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            } else if (typeof supabase !== 'undefined' && supabase.createClient) {
+                window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            } else {
+                console.error('Supabase SDK não carregado corretamente');
+            }
+        })();
+    </script>
+    <script src="script.js"></script>
+    <script src="confirmation.js"></script>
+</body>
+</html>
+
