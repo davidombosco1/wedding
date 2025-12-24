@@ -903,9 +903,12 @@ h1, h2, h3 {
     width: 100%;
     height: 280px;
     object-fit: cover;
+    object-position: center;
     border-radius: 2px;
     display: block;
     background: var(--peach-soft);
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .thank-you-message h2 {
@@ -988,9 +991,22 @@ h1, h2, h3 {
         max-width: 90%;
     }
     
+    .thank-you-photo-container {
+        padding: 20px 15px;
+    }
+    
     .thank-you-photo {
-        width: 150px;
-        height: 150px;
+        width: 180px;
+        max-width: 100%;
+        padding: 10px 10px 50px 10px;
+    }
+    
+    .thank-you-photo img {
+        width: 100%;
+        height: auto;
+        max-height: 200px;
+        object-fit: cover;
+        object-position: center;
     }
     
     .thank-you-message h2 {
