@@ -186,10 +186,14 @@ const SUPABASE_ANON_KEY = 'sua-chave-anon-aqui';
    [
      {
        "name": "Maria Silva",
-       "confirmed": false
+       "confirmed": false,
+       "is_child": false,
+       "shoe_size": "37/38"
      }
    ]
    ```
+   - **shoe_size**: `disabled` (se for homem) ou uma das opções: `33/34`, `35/36`, `37/38`, `39/40`, `41/42` (se for mulher)
+   - **confirmation_deadline**: Data limite para confirmação (ex: `2026-03-31`)
 4. Clique em **Save**
 
 ## 📊 Estrutura de Dados
@@ -207,6 +211,8 @@ CREATE TABLE guests (
   message text,
   confirmed_at timestamptz,
   confirmed_guests text[] DEFAULT '{}',
+  shoe_size text,
+  confirmation_deadline date,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
@@ -218,14 +224,28 @@ CREATE TABLE guests (
 [
   {
     "name": "Nome do Acompanhante 1",
-    "confirmed": false
+    "confirmed": false,
+    "is_child": false,
+    "shoe_size": "37/38"
   },
   {
     "name": "Nome do Acompanhante 2",
-    "confirmed": false
+    "confirmed": false,
+    "is_child": true,
+    "shoe_size": "disabled"
   }
 ]
 ```
+
+**Campos do companion:**
+- `name` (string, obrigatório): Nome do acompanhante
+- `confirmed` (boolean, obrigatório): Se o acompanhante foi confirmado
+- `is_child` (boolean, obrigatório): Se o acompanhante é uma criança
+- `shoe_size` (string, nullable): Numeração do chinelo. Use `'disabled'` para homens, ou uma das opções `'33/34'`, `'35/36'`, `'37/38'`, `'39/40'`, `'41/42'` para mulheres
+
+**Campos da tabela guests:**
+- `shoe_size` (string, nullable): Numeração do chinelo do convidado principal. Use `'disabled'` para homens, ou uma das opções `'33/34'`, `'35/36'`, `'37/38'`, `'39/40'`, `'41/42'` para mulheres
+- `confirmation_deadline` (date, nullable): Data limite para confirmação de presença
 
 ## 🔧 Importação em Massa
 
@@ -235,11 +255,11 @@ CREATE TABLE guests (
 2. Execute um INSERT para cada convidado:
 
 ```sql
-INSERT INTO guests (name, code, companions)
+INSERT INTO guests (name, code, companions, shoe_size, confirmation_deadline)
 VALUES 
-  ('João Silva', 'ABC123', '[{"name": "Maria Silva", "confirmed": false}]'::jsonb),
-  ('Pedro Santos', 'DEF456', '[{"name": "Ana Santos", "confirmed": false}, {"name": "Lucas Santos", "confirmed": false}]'::jsonb),
-  ('Carla Oliveira', 'GHI789', '[]'::jsonb);
+  ('João Silva', 'ABC123', '[{"name": "Maria Silva", "confirmed": false, "is_child": false, "shoe_size": "37/38"}]'::jsonb, 'disabled', '2026-03-31'),
+  ('Pedro Santos', 'DEF456', '[{"name": "Ana Santos", "confirmed": false, "is_child": false, "shoe_size": "39/40"}, {"name": "Lucas Santos", "confirmed": false, "is_child": true, "shoe_size": "disabled"}]'::jsonb, '39/40', '2026-03-31'),
+  ('Carla Oliveira', 'GHI789', '[]'::jsonb, '35/36', '2026-03-31');
 ```
 
 ### Opção 2: Via Table Editor

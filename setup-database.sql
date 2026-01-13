@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS guests (
   message text,
   confirmed_at timestamptz,
   confirmed_guests text[] DEFAULT '{}',
+  shoe_size text,
+  confirmation_deadline date,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
@@ -45,12 +47,14 @@ CREATE POLICY "Allow public read" ON guests
   FOR SELECT
   USING (true);
 
--- Política para UPDATE (atualização - apenas se não confirmou)
+-- Política para UPDATE (atualização - permite editar confirmações)
+-- A validação de confirmation_deadline é feita no JavaScript
 DROP POLICY IF EXISTS "Allow update if not confirmed" ON guests;
-CREATE POLICY "Allow update if not confirmed" ON guests
+DROP POLICY IF EXISTS "Allow update confirmation" ON guests;
+CREATE POLICY "Allow update confirmation" ON guests
   FOR UPDATE
-  USING (NOT confirmed)
-  WITH CHECK (NOT confirmed);
+  USING (true)
+  WITH CHECK (true);
 
 -- 7. Inserir um convidado de TESTE
 INSERT INTO guests (name, code, companions)

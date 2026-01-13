@@ -68,66 +68,78 @@ const pixKeyDisplay = document.getElementById('pix-key-display');
 const closeModal = document.querySelector('.close-modal');
 const copyPixBtn = document.getElementById('copy-pix-btn');
 
-// Abrir modal ao clicar em um presente
-giftCards.forEach(card => {
-    card.addEventListener('click', () => {
-        const pixKey = card.getAttribute('data-pix');
-        pixKeyDisplay.textContent = pixKey;
-        pixModal.style.display = 'block';
+// Abrir modal ao clicar em um presente (se existir)
+if (giftCards.length > 0) {
+    giftCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const pixKey = card.getAttribute('data-pix');
+            if (pixKeyDisplay && pixModal) {
+                pixKeyDisplay.textContent = pixKey;
+                pixModal.style.display = 'block';
+            }
+        });
     });
-});
+}
 
-// Fechar modal
-closeModal.addEventListener('click', () => {
-    pixModal.style.display = 'none';
-});
+// Fechar modal (se existir)
+if (closeModal) {
+    closeModal.addEventListener('click', () => {
+        if (pixModal) {
+            pixModal.style.display = 'none';
+        }
+    });
+}
 
-window.addEventListener('click', (e) => {
-    if (e.target === pixModal) {
-        pixModal.style.display = 'none';
-    }
-});
+if (pixModal) {
+    window.addEventListener('click', (e) => {
+        if (e.target === pixModal) {
+            pixModal.style.display = 'none';
+        }
+    });
+}
 
 // Copiar chave PIX
-copyPixBtn.addEventListener('click', () => {
-    const pixKey = pixKeyDisplay.textContent;
-    
-    // Usar a API de Clipboard se disponível
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(pixKey).then(() => {
-            copyPixBtn.textContent = 'Copiado!';
-            copyPixBtn.style.background = '#28a745';
-            
-            setTimeout(() => {
-                copyPixBtn.textContent = 'Copiar Chave PIX';
-                copyPixBtn.style.background = '';
-            }, 2000);
-        });
-    } else {
-        // Fallback para navegadores mais antigos
-        const textArea = document.createElement('textarea');
-        textArea.value = pixKey;
-        textArea.style.position = 'fixed';
-        textArea.style.opacity = '0';
-        document.body.appendChild(textArea);
-        textArea.select();
+if (copyPixBtn && pixKeyDisplay) {
+    copyPixBtn.addEventListener('click', () => {
+        const pixKey = pixKeyDisplay.textContent;
         
-        try {
-            document.execCommand('copy');
-            copyPixBtn.textContent = 'Copiado!';
-            copyPixBtn.style.background = '#28a745';
+        // Usar a API de Clipboard se disponível
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(pixKey).then(() => {
+                copyPixBtn.textContent = 'Copiado!';
+                copyPixBtn.style.background = '#28a745';
+                
+                setTimeout(() => {
+                    copyPixBtn.textContent = 'Copiar Chave PIX';
+                    copyPixBtn.style.background = '';
+                }, 2000);
+            });
+        } else {
+            // Fallback para navegadores mais antigos
+            const textArea = document.createElement('textarea');
+            textArea.value = pixKey;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.select();
             
-            setTimeout(() => {
-                copyPixBtn.textContent = 'Copiar Chave PIX';
-                copyPixBtn.style.background = '';
-            }, 2000);
-        } catch (err) {
-            alert('Não foi possível copiar. A chave PIX é: ' + pixKey);
+            try {
+                document.execCommand('copy');
+                copyPixBtn.textContent = 'Copiado!';
+                copyPixBtn.style.background = '#28a745';
+                
+                setTimeout(() => {
+                    copyPixBtn.textContent = 'Copiar Chave PIX';
+                    copyPixBtn.style.background = '';
+                }, 2000);
+            } catch (err) {
+                alert('Não foi possível copiar. A chave PIX é: ' + pixKey);
+            }
+            
+            document.body.removeChild(textArea);
         }
-        
-        document.body.removeChild(textArea);
-    }
-});
+    });
+}
 
 // Efeito de scroll na navbar
 window.addEventListener('scroll', () => {
@@ -143,7 +155,12 @@ window.addEventListener('scroll', () => {
 (function initCarousel() {
     const carouselTrack = document.getElementById('carousel-track');
     
-    if (!carouselTrack) return;
+    if (!carouselTrack) {
+        console.warn('Carrossel não encontrado: elemento #carousel-track não existe');
+        return;
+    }
+    
+    console.log('Carrossel encontrado, inicializando...');
     
     // Lista de TODAS as fotos do carrossel (17 fotos)
     const carouselImages = [
@@ -176,11 +193,20 @@ window.addEventListener('scroll', () => {
     
     // Criar slides do carrossel
     function createCarouselSlides() {
+        console.log('Criando slides do carrossel...');
+        console.log('Elemento carouselTrack:', carouselTrack);
+        
+        if (!carouselTrack) {
+            console.error('carouselTrack não encontrado!');
+            return;
+        }
+        
         carouselTrack.innerHTML = '';
         
         // Filtrar apenas imagens que carregam com sucesso
         let loadedImages = 0;
         const totalImages = duplicatedImages.length;
+        console.log(`Total de imagens a carregar: ${totalImages}`);
         
         duplicatedImages.forEach((imagePath, index) => {
             const slide = document.createElement('div');
@@ -193,8 +219,10 @@ window.addEventListener('scroll', () => {
             
             img.onload = function() {
                 loadedImages++;
+                console.log(`Imagem carregada: ${imagePath} (${loadedImages}/${totalImages})`);
                 // Iniciar animação quando todas as imagens estiverem carregadas
                 if (loadedImages === totalImages) {
+                    console.log('Todas as imagens carregadas, iniciando animação...');
                     setTimeout(() => {
                         startAutoScroll();
                     }, 200);
@@ -207,6 +235,7 @@ window.addEventListener('scroll', () => {
                 loadedImages++;
                 // Mesmo com erro, contar como carregada para não travar
                 if (loadedImages === totalImages) {
+                    console.log('Todas as imagens processadas (algumas com erro), iniciando animação...');
                     setTimeout(() => {
                         startAutoScroll();
                     }, 200);
@@ -217,21 +246,42 @@ window.addEventListener('scroll', () => {
             carouselTrack.appendChild(slide);
         });
         
+        console.log(`Slides criados: ${carouselTrack.children.length}`);
+        
         // Fallback: iniciar animação mesmo se algumas imagens não carregarem
         setTimeout(() => {
-            if (!animationId) {
+            if (!animationId && carouselTrack.children.length > 0) {
+                console.log('Fallback: iniciando animação após timeout...');
                 startAutoScroll();
             }
-        }, 1000);
+        }, 2000);
     }
     
     // Animação de scroll automático
     function startAutoScroll() {
+        console.log('Iniciando animação do carrossel...');
+        
+        // Verificar se o carrossel tem conteúdo
+        if (carouselTrack.children.length === 0) {
+            console.warn('Carrossel não tem slides, tentando criar novamente...');
+            setTimeout(createCarouselSlides, 500);
+            return;
+        }
+        
         // Calcular largura de um conjunto de fotos
         const singleSetWidth = carouselTrack.scrollWidth / 3;
+        console.log(`Largura do conjunto: ${singleSetWidth}px`);
+        console.log(`Número de slides: ${carouselTrack.children.length}`);
+        
+        // Se a largura for 0 ou inválida, tentar novamente
+        if (singleSetWidth <= 0 || !isFinite(singleSetWidth)) {
+            console.warn('Largura inválida, tentando novamente em 500ms...');
+            setTimeout(() => startAutoScroll(), 500);
+            return;
+        }
         
         function animate() {
-            if (!isPaused) {
+            if (!isPaused && carouselTrack.children.length > 0) {
                 scrollPosition -= scrollSpeed;
                 
                 // Resetar posição quando chegar ao final de um conjunto (criar loop infinito)
@@ -259,11 +309,26 @@ window.addEventListener('scroll', () => {
     }
     
     // Inicializar carrossel quando o DOM estiver pronto
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', createCarouselSlides);
-    } else {
-        // Aguardar um pouco para garantir que o layout foi calculado
-        setTimeout(createCarouselSlides, 100);
+    function init() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(createCarouselSlides, 300);
+            });
+        } else {
+            // DOM já está pronto, aguardar um pouco para garantir que o layout foi calculado
+            setTimeout(createCarouselSlides, 300);
+        }
     }
+    
+    // Tentar inicializar imediatamente
+    init();
+    
+    // Também tentar quando a janela carregar completamente
+    window.addEventListener('load', () => {
+        if (!animationId) {
+            console.log('Tentando inicializar carrossel após load da janela...');
+            setTimeout(createCarouselSlides, 500);
+        }
+    });
 })();
 

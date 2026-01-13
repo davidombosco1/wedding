@@ -24,21 +24,27 @@ const guests = [
   {
     name: "João Silva",
     code: "ABC123", // Ou use generateCode() para gerar automaticamente
+    shoe_size: "disabled", // "disabled" para homens, ou "33/34", "35/36", "37/38", "39/40", "41/42" para mulheres
+    confirmation_deadline: "2026-03-31", // Data limite para confirmação (formato: YYYY-MM-DD)
     companions: [
-      { name: "Maria Silva", confirmed: false }
+      { name: "Maria Silva", confirmed: false, is_child: false, shoe_size: "37/38" }
     ]
   },
   {
     name: "Pedro Santos",
     code: "DEF456",
+    shoe_size: "39/40",
+    confirmation_deadline: "2026-03-31",
     companions: [
-      { name: "Ana Santos", confirmed: false },
-      { name: "Lucas Santos", confirmed: false }
+      { name: "Ana Santos", confirmed: false, is_child: false, shoe_size: "39/40" },
+      { name: "Lucas Santos", confirmed: false, is_child: true, shoe_size: "disabled" }
     ]
   },
   {
     name: "Carla Oliveira",
     code: generateCode(), // Gera código aleatório
+    shoe_size: "35/36",
+    confirmation_deadline: "2026-03-31",
     companions: [] // Sem acompanhantes
   }
   // Adicione mais convidados aqui...
@@ -71,7 +77,9 @@ async function importGuests() {
           phone: null,
           message: null,
           confirmed_at: null,
-          confirmed_guests: []
+          confirmed_guests: [],
+          shoe_size: guest.shoe_size || null,
+          confirmation_deadline: guest.confirmation_deadline || null
         })
         .select();
       

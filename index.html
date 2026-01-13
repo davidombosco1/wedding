@@ -174,56 +174,98 @@
         </div>
     </section>
 
+    <!-- Modal de Erro -->
+    <div id="error-modal" class="error-modal" style="display: none;">
+        <div class="error-modal-overlay"></div>
+        <div class="error-modal-content">
+            <div class="error-modal-header">
+                <h3>⚠️ Atenção</h3>
+            </div>
+            <div class="error-modal-body">
+                <p id="error-modal-message"></p>
+            </div>
+            <div class="error-modal-footer">
+                <button id="error-modal-close" class="error-modal-btn">Entendi</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Presentes -->
     <section id="presentes" class="gifts-section">
         <div class="container">
             <h2 class="section-title">Lista de Presentes</h2>
             <p class="section-subtitle">Sua presença é o maior presente, mas se quiser nos presentear...</p>
-            <div class="gifts-grid">
-                <div class="gift-card" data-pix="SUA_CHAVE_PIX_AQUI">
-                    <div class="gift-icon">💍</div>
-                    <h3>Alianças</h3>
-                    <p>Ajude-nos a simbolizar nossa união</p>
+            
+            <!-- Filtros -->
+            <div class="gifts-filters">
+                <!-- Filtro por Tema -->
+                <div class="filter-group">
+                    <label class="filter-label">Tema:</label>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-tema="todos">Todos</button>
+                        <button class="filter-tab" data-tema="Casa">Casa</button>
+                        <button class="filter-tab" data-tema="Lua de Mel">Lua de Mel</button>
+                    </div>
                 </div>
-                <div class="gift-card" data-pix="SUA_CHAVE_PIX_AQUI">
-                    <div class="gift-icon">🏠</div>
-                    <h3>Lua de Mel</h3>
-                    <p>Contribua para nossa viagem especial</p>
-                </div>
-                <div class="gift-card" data-pix="SUA_CHAVE_PIX_AQUI">
-                    <div class="gift-icon">🍽️</div>
-                    <h3>Mesa e Cadeiras</h3>
-                    <p>Para recebermos bem nossa família</p>
-                </div>
-                <div class="gift-card" data-pix="SUA_CHAVE_PIX_AQUI">
-                    <div class="gift-icon">🛏️</div>
-                    <h3>Quarto</h3>
-                    <p>Para nosso novo lar</p>
-                </div>
-                <div class="gift-card" data-pix="SUA_CHAVE_PIX_AQUI">
-                    <div class="gift-icon">🍳</div>
-                    <h3>Cozinha</h3>
-                    <p>Para prepararmos refeições especiais</p>
-                </div>
-                <div class="gift-card" data-pix="SUA_CHAVE_PIX_AQUI">
-                    <div class="gift-icon">💝</div>
-                    <h3>Presente Surpresa</h3>
-                    <p>Escolha o valor que desejar</p>
+                
+                <!-- Filtro por Faixa -->
+                <div class="filter-group">
+                    <label class="filter-label">Faixa de Preço:</label>
+                    <select id="faixa-filter" class="filter-select">
+                        <option value="todos">Todas as faixas</option>
+                        <option value="Faixa A">Faixa A</option>
+                        <option value="Faixa B">Faixa B</option>
+                        <option value="Faixa C">Faixa C</option>
+                        <option value="Premium">Premium</option>
+                    </select>
                 </div>
             </div>
-            <div id="pix-modal" class="pix-modal">
-                <div class="pix-modal-content">
-                    <span class="close-modal">&times;</span>
-                    <h3>Chave PIX</h3>
-                    <div class="pix-key-container">
-                        <p id="pix-key-display" class="pix-key"></p>
-                        <button id="copy-pix-btn" class="copy-btn">Copiar Chave PIX</button>
-                    </div>
-                    <p class="pix-note">Após o pagamento, envie o comprovante para nós!</p>
-                </div>
+            
+            <!-- Grid de Presentes -->
+            <div id="gifts-grid" class="gifts-grid">
+                <div class="loading-message">Carregando presentes...</div>
             </div>
         </div>
     </section>
+
+    <!-- Modal de Confirmação de Presente -->
+    <div id="gift-modal" class="gift-modal" style="display: none;">
+        <div class="gift-modal-overlay"></div>
+        <div class="gift-modal-content">
+            <button class="gift-modal-close" id="gift-modal-close">&times;</button>
+            <div class="gift-modal-header">
+                <h3 id="gift-modal-title"></h3>
+            </div>
+            <div class="gift-modal-body">
+                <div class="gift-modal-image">
+                    <img id="gift-modal-img" src="" alt="">
+                </div>
+                <div class="gift-modal-info">
+                    <div class="gift-modal-price">
+                        <strong>Valor: R$ <span id="gift-modal-value"></span></strong>
+                    </div>
+                    <div class="gift-modal-pix">
+                        <label>Chave PIX:</label>
+                        <div class="pix-key-display">
+                            <span id="gift-modal-pix"></span>
+                            <button class="copy-pix-btn" id="copy-pix-btn">Copiar</button>
+                        </div>
+                    </div>
+                    <form id="gift-confirmation-form">
+                        <div class="form-group">
+                            <label for="guest-name-gift">Seu nome</label>
+                            <input type="text" id="guest-name-gift" name="guest-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="guest-message-gift">Mensagem (opcional)</label>
+                            <textarea id="guest-message-gift" name="guest-message" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="gift-submit-btn">Já enviei o PIX</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Rodapé -->
     <footer class="footer">
@@ -255,6 +297,7 @@
     </script>
     <script src="script.js"></script>
     <script src="confirmation.js"></script>
+    <script src="gifts.js"></script>
 </body>
 </html>
 
