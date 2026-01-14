@@ -51,11 +51,10 @@ async function loadGifts() {
             return;
         }
 
-        // Buscar todos os presentes disponíveis, ordenados por valor (menor para maior)
+        // Buscar TODOS os presentes (disponíveis e confirmados), ordenados por valor (menor para maior)
         const { data, error } = await window.supabaseClient
             .from('lista_presentes')
             .select('*')
-            .eq('status', 'disponivel')
             .order('valor', { ascending: true });
 
         if (error) {
@@ -95,8 +94,12 @@ function renderGifts(gifts) {
         // Escapar placeholderImage para uso em atributo HTML (escapar aspas simples)
         const escapedPlaceholder = placeholderImage.replace(/'/g, "&#39;");
         
+        const isConfirmed = gift.status === 'confirmado';
+        const cardClass = isConfirmed ? 'gift-card gift-card-confirmed' : 'gift-card';
+        const tooltipText = isConfirmed ? 'Davi e Yas já ganharam 🎉' : '';
+        
         return `
-        <div class="gift-card" data-code="${gift.code}">
+        <div class="${cardClass}" data-code="${gift.code}" data-status="${gift.status}" title="${tooltipText}">
             <div class="gift-card-image">
                 <img src="${imageUrl}" alt="${escapeHtml(gift.nome)}" onerror="this.onerror=null; this.src='${escapedPlaceholder}';">
             </div>
@@ -107,7 +110,7 @@ function renderGifts(gifts) {
                     <span class="gift-card-faixa">${escapeHtml(gift.faixa)}</span>
                 </div>
                 <div class="gift-card-price">R$ ${formatCurrency(gift.valor)}</div>
-                <button class="gift-card-btn" onclick="openGiftModal('${escapeHtml(gift.code)}')">Presentear</button>
+                ${isConfirmed ? '<div class="gift-card-confirmed-badge">Presenteado 🎉</div>' : `<button class="gift-card-btn" onclick="openGiftModal('${escapeHtml(gift.code)}')">Presentear</button>`}
             </div>
         </div>
         `;
@@ -146,6 +149,11 @@ function getPlaceholderImage() {
 async function openGiftModal(code) {
     const gift = allGifts.find(g => g.code === code);
     if (!gift) return;
+    
+    // Não abrir modal se o presente já estiver confirmado
+    if (gift.status === 'confirmado') {
+        return;
+    }
 
     currentGift = gift;
     const modal = document.getElementById('gift-modal');
@@ -339,9 +347,8 @@ async function handleGiftConfirmation(event) {
             throw new Error('Este presente já foi confirmado por outra pessoa ou não está mais disponível.');
         }
 
-        // Remover presente da lista local
-        allGifts = allGifts.filter(g => g.code !== currentGift.code);
-        applyFilters();
+        // Recarregar todos os presentes para atualizar o estado (incluindo confirmados)
+        await loadGifts();
 
         // Fechar modal
         const modal = document.getElementById('gift-modal');
