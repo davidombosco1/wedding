@@ -64,7 +64,8 @@ async function loadGifts() {
 
         allGifts = data || [];
         console.log('Presentes carregados:', allGifts.length);
-        renderGifts(allGifts);
+        // Aplicar filtros após carregar (filtro de disponibilidade está pré-selecionado)
+        applyFilters();
 
     } catch (error) {
         console.error('Erro ao carregar presentes:', error);
@@ -248,10 +249,14 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         setupGiftEventListeners();
         setupFilters();
+        // Carregar presentes após configurar filtros
+        loadGifts();
     });
 } else {
     setupGiftEventListeners();
     setupFilters();
+    // Carregar presentes após configurar filtros
+    loadGifts();
 }
 
 // Configurar filtros
@@ -319,6 +324,31 @@ function setupFilters() {
             applyFilters();
         });
     }
+    
+    // Filtro por disponibilidade (select) - versão normal
+    const disponibilidadeFilter = document.getElementById('disponibilidade-filter');
+    if (disponibilidadeFilter) {
+        disponibilidadeFilter.addEventListener('change', () => {
+            // Sincronizar com filtro compacto
+            const disponibilidadeFilterCompact = document.getElementById('disponibilidade-filter-compact');
+            if (disponibilidadeFilterCompact) {
+                disponibilidadeFilterCompact.value = disponibilidadeFilter.value;
+            }
+            applyFilters();
+        });
+    }
+    
+    // Filtro por disponibilidade (select) - versão compacta
+    const disponibilidadeFilterCompact = document.getElementById('disponibilidade-filter-compact');
+    if (disponibilidadeFilterCompact) {
+        disponibilidadeFilterCompact.addEventListener('change', () => {
+            // Sincronizar com filtro normal
+            if (disponibilidadeFilter) {
+                disponibilidadeFilter.value = disponibilidadeFilterCompact.value;
+            }
+            applyFilters();
+        });
+    }
 }
 
 // Aplicar filtros
@@ -329,6 +359,9 @@ function applyFilters() {
     
     const faixaFilter = document.getElementById('faixa-filter') || document.getElementById('faixa-filter-compact');
     const selectedPriceCluster = faixaFilter?.value || 'todos';
+    
+    const disponibilidadeFilter = document.getElementById('disponibilidade-filter') || document.getElementById('disponibilidade-filter-compact');
+    const selectedDisponibilidade = disponibilidadeFilter?.value || 'disponiveis';
 
     let filteredGifts = [...allGifts];
 
@@ -357,6 +390,11 @@ function applyFilters() {
                     return true;
             }
         });
+    }
+    
+    // Filtrar por disponibilidade
+    if (selectedDisponibilidade === 'disponiveis') {
+        filteredGifts = filteredGifts.filter(gift => gift.status !== 'confirmado');
     }
 
     renderGifts(filteredGifts);

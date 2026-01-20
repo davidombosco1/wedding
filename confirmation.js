@@ -32,6 +32,28 @@ function formatDeadlineDate() {
     });
 }
 
+// Converter data UTC para UTC-3 (horário de Brasília)
+function formatDateToUTC3(dateString) {
+    if (!dateString) return null;
+    // Garantir que a data seja interpretada como UTC
+    let dateStr = dateString;
+    if (!dateStr.endsWith('Z') && !dateStr.includes('+') && !dateStr.includes('-', 10)) {
+        // Se não tem indicador de timezone, assumir UTC adicionando Z
+        dateStr = dateStr + 'Z';
+    }
+    // Criar data interpretando como UTC
+    const date = new Date(dateStr);
+    // Usar toLocaleString com timezone específico de São Paulo (UTC-3)
+    return date.toLocaleString('pt-BR', {
+        timeZone: 'America/Sao_Paulo',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
 // Verificar se Supabase está disponível
 function waitForSupabase() {
     return new Promise((resolve) => {
@@ -296,13 +318,7 @@ function displayConfirmationScreen() {
         
         if (confirmedPeople.length > 0) {
             const confirmDate = currentGuestData.confirmed_at 
-                ? new Date(currentGuestData.confirmed_at).toLocaleDateString('pt-BR', { 
-                    day: '2-digit', 
-                    month: '2-digit', 
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                })
+                ? formatDateToUTC3(currentGuestData.confirmed_at)
                 : 'anteriormente';
             
             const deadlineInfo = canUndo ? (() => {
@@ -369,7 +385,7 @@ function displayConfirmationScreen() {
         confirmedInfo.innerHTML = `
             <div class="confirmed-badge">✓ Confirmado</div>
             ${confirmedPeopleHTML}
-            ${currentGuestData.confirmed_at ? `<p class="confirmed-date">Confirmado em: ${new Date(currentGuestData.confirmed_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>` : ''}
+            ${currentGuestData.confirmed_at ? `<p class="confirmed-date">Confirmado em: ${formatDateToUTC3(currentGuestData.confirmed_at)}</p>` : ''}
             ${currentGuestData.phone ? `<p class="confirmed-phone">Telefone: ${currentGuestData.phone}</p>` : ''}
         `;
         guestNameDisplay.parentElement.appendChild(confirmedInfo);
@@ -513,7 +529,7 @@ function displayConfirmationScreen() {
         <div class="guest-checkbox-wrapper">
             <label class="guest-checkbox-label">
                 <input type="checkbox" name="guest" value="main" ${mainChecked ? 'checked' : ''} ${mainDisabled ? 'disabled' : ''}>
-                <span class="guest-name">${currentGuestData.name} (Você)</span>
+                <span class="guest-name">${currentGuestData.name}</span>
             </label>
             ${showMainShoeSize ? `
                 <select id="shoe-size-main" name="shoe-size-main" class="shoe-size-select-inline" ${mainDisabled ? 'disabled' : ''}>

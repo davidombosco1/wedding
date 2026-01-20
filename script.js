@@ -217,6 +217,13 @@ window.addEventListener('scroll', () => {
     let animationId = null;
     let isPaused = false;
     
+    // Variáveis para scroll manual
+    let isDragging = false;
+    let startX = 0;
+    let startScrollPosition = 0;
+    let manualScrollTimeout = null;
+    let singleSetWidth = 0;
+    
     // Criar slides do carrossel
     function createCarouselSlides() {
         console.log('Criando slides do carrossel...');
@@ -295,7 +302,7 @@ window.addEventListener('scroll', () => {
         }
         
         // Calcular largura de um conjunto de fotos
-        const singleSetWidth = carouselTrack.scrollWidth / 3;
+        singleSetWidth = carouselTrack.scrollWidth / 3;
         console.log(`Largura do conjunto: ${singleSetWidth}px`);
         console.log(`Número de slides: ${carouselTrack.children.length}`);
         
@@ -322,15 +329,131 @@ window.addEventListener('scroll', () => {
         animate();
     }
     
-    // Pausar ao passar o mouse
+    // Função para retomar scroll automático após interação manual
+    function resumeAutoScroll() {
+        if (manualScrollTimeout) {
+            clearTimeout(manualScrollTimeout);
+        }
+        manualScrollTimeout = setTimeout(() => {
+            isPaused = false;
+            // Garantir que a posição está dentro dos limites
+            normalizeScrollPosition();
+        }, 1500); // Retoma após 1.5 segundos sem interação
+    }
+    
+    // Normalizar posição do scroll para manter loop infinito
+    function normalizeScrollPosition() {
+        if (singleSetWidth <= 0) return;
+        
+        // Se estiver muito à esquerda, ajustar
+        while (scrollPosition < -singleSetWidth) {
+            scrollPosition += singleSetWidth;
+        }
+        // Se estiver muito à direita, ajustar
+        while (scrollPosition > 0) {
+            scrollPosition -= singleSetWidth;
+        }
+    }
+    
+    // Pausar ao passar o mouse (mantém funcionalidade original)
     const carouselWrapper = carouselTrack.closest('.carousel-wrapper');
     if (carouselWrapper) {
-        carouselWrapper.addEventListener('mouseenter', () => {
+        // Scroll manual com mouse drag
+        carouselWrapper.addEventListener('mousedown', (e) => {
+            isDragging = true;
             isPaused = true;
+            startX = e.clientX;
+            startScrollPosition = scrollPosition;
+            carouselWrapper.style.cursor = 'grabbing';
+            e.preventDefault();
+        });
+        
+        carouselWrapper.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const deltaX = e.clientX - startX;
+                scrollPosition = startScrollPosition + deltaX;
+                normalizeScrollPosition();
+                carouselTrack.style.transform = `translateX(${scrollPosition}px)`;
+                carouselTrack.style.transition = 'none'; // Remover transição durante drag
+            }
+        });
+        
+        carouselWrapper.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                carouselWrapper.style.cursor = 'grab';
+                carouselTrack.style.transition = ''; // Restaurar transição
+                resumeAutoScroll();
+            }
         });
         
         carouselWrapper.addEventListener('mouseleave', () => {
-            isPaused = false;
+            if (isDragging) {
+                isDragging = false;
+                carouselWrapper.style.cursor = 'grab';
+                carouselTrack.style.transition = '';
+                resumeAutoScroll();
+            }
+        });
+        
+        // Scroll com roda do mouse
+        carouselWrapper.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            isPaused = true;
+            
+            // Scroll mais rápido com a roda
+            const scrollAmount = e.deltaY * 0.5;
+            scrollPosition -= scrollAmount;
+            normalizeScrollPosition();
+            carouselTrack.style.transform = `translateX(${scrollPosition}px)`;
+            carouselTrack.style.transition = 'transform 0.1s ease-out';
+            
+            resumeAutoScroll();
+        }, { passive: false });
+        
+        // Touch events para mobile
+        let touchStartX = 0;
+        let touchStartScrollPosition = 0;
+        
+        carouselWrapper.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            isPaused = true;
+            touchStartX = e.touches[0].clientX;
+            touchStartScrollPosition = scrollPosition;
+            carouselTrack.style.transition = 'none';
+        }, { passive: true });
+        
+        carouselWrapper.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                const deltaX = e.touches[0].clientX - touchStartX;
+                scrollPosition = touchStartScrollPosition + deltaX;
+                normalizeScrollPosition();
+                carouselTrack.style.transform = `translateX(${scrollPosition}px)`;
+            }
+        }, { passive: true });
+        
+        carouselWrapper.addEventListener('touchend', () => {
+            if (isDragging) {
+                isDragging = false;
+                carouselTrack.style.transition = '';
+                resumeAutoScroll();
+            }
+        }, { passive: true });
+        
+        // Mudar cursor para indicar que é arrastável
+        carouselWrapper.style.cursor = 'grab';
+        
+        // Pausar ao passar o mouse (comportamento original mantido)
+        carouselWrapper.addEventListener('mouseenter', () => {
+            if (!isDragging) {
+                isPaused = true;
+            }
+        });
+        
+        carouselWrapper.addEventListener('mouseleave', () => {
+            if (!isDragging) {
+                isPaused = false;
+            }
         });
     }
     

@@ -496,6 +496,15 @@ h1, h2, h3 {
     height: 100%;
     overflow: hidden;
     min-height: 300px;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.carousel-wrapper:active {
+    cursor: grabbing;
 }
 
 .carousel-track {
@@ -506,6 +515,7 @@ h1, h2, h3 {
     will-change: transform;
     align-items: center;
     visibility: visible;
+    transition: transform 0.1s ease-out;
 }
 
 .carousel-slide {
@@ -641,8 +651,8 @@ h1, h2, h3 {
 
 .ceremony-layout {
     display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 3rem;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2rem;
     align-items: start;
     max-width: 1600px;
     margin: 0 auto;
@@ -661,6 +671,7 @@ h1, h2, h3 {
     text-align: center;
     border: 1px solid #E7E6B1;
     border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .info-card h3 {
@@ -670,6 +681,14 @@ h1, h2, h3 {
     font-weight: 600;
     position: relative;
     padding-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.info-card h3 i {
+    font-size: 1.2rem;
 }
 
 .info-card h3::after {
@@ -690,6 +709,18 @@ h1, h2, h3 {
     text-align: center;
 }
 
+.info-card .local-link {
+    color: var(--text-light);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+    transition: opacity 0.2s ease;
+}
+
+.info-card .local-link:hover {
+    opacity: 0.7;
+}
+
 .info-time, .info-location {
     font-weight: 600;
     color: var(--moss-deep);
@@ -700,7 +731,7 @@ h1, h2, h3 {
     grid-column: 1 / -1;
     background: transparent;
     padding: 1.5rem 0;
-    margin-top: 1.5rem;
+    margin-top: 0.5rem;
 }
 
 .ceremony-note p {
@@ -724,6 +755,24 @@ h1, h2, h3 {
     width: 100%;
     height: 450px;
     border: 0;
+    border-radius: 8px;
+    display: block;
+}
+
+.ceremony-photo {
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    background: transparent;
+    border: 1px solid #E7E6B1;
+    padding: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.capela-image {
+    width: 100%;
+    height: 450px;
+    object-fit: cover;
     border-radius: 8px;
     display: block;
 }
@@ -2012,7 +2061,6 @@ h1, h2, h3 {
     margin-top: 2rem;
 }
 
-/* Container com scroll para desktop - máximo 3 fileiras */
 @media (min-width: 769px) {
     .story-columns {
         column-count: 2;
@@ -2022,36 +2070,6 @@ h1, h2, h3 {
     .gifts-section .container {
         max-width: 98%;
         padding: 0 15px;
-    }
-    
-    .gifts-grid {
-        /* Altura aproximada: 3 fileiras de cards (~450px cada) + 2 gaps (1.5rem cada) */
-        max-height: calc(3 * 450px + 2 * 1.5rem);
-        overflow-y: auto;
-        overflow-x: hidden;
-        padding-right: 10px;
-        margin-right: -10px;
-        gap: 1.5rem;
-    }
-    
-    /* Estilizar a scrollbar */
-    .gifts-grid::-webkit-scrollbar {
-        width: 12px;
-    }
-    
-    .gifts-grid::-webkit-scrollbar-track {
-        background: var(--peach-soft);
-        border-radius: 10px;
-    }
-    
-    .gifts-grid::-webkit-scrollbar-thumb {
-        background: var(--terracotta);
-        border-radius: 10px;
-        border: 2px solid var(--peach-soft);
-    }
-    
-    .gifts-grid::-webkit-scrollbar-thumb:hover {
-        background: var(--moss-deep);
     }
 }
 
