@@ -487,6 +487,7 @@ window.addEventListener('scroll', () => {
     const stickyElements = document.querySelectorAll('.story-title-wrapper, .ceremony-title-wrapper, .confirmation-title-wrapper, .gifts-title-wrapper');
     const stickyStartPoints = new Map(); // Armazenar quando cada elemento ficou sticky
     const compactStates = new Map(); // Armazenar estado atual de compacto para cada elemento
+    const compactTimeouts = new Map(); // Timeouts para debounce das mudanças
     
     function checkSticky() {
         stickyElements.forEach(element => {
@@ -517,33 +518,58 @@ window.addEventListener('scroll', () => {
                 const startPoint = stickyStartPoints.get(element);
                 const scrollOffset = scrollTop - startPoint;
                 
-                // Histérese para evitar alternância rápida entre compacto e normal
-                // Valores diferentes para ativar e desativar
+                // Histérese mais agressiva para evitar alternância rápida
+                // Valores muito diferentes para ativar e desativar
                 const isMobile = window.innerWidth <= 768;
-                const activateThreshold = isMobile ? 100 : 80; // Ativar compacto após mais scroll
-                const deactivateThreshold = isMobile ? 60 : 40; // Desativar compacto com menos scroll
+                const activateThreshold = isMobile ? 150 : 100; // Ativar compacto após muito mais scroll
+                const deactivateThreshold = isMobile ? 80 : 50; // Desativar compacto com menos scroll
                 
                 const isCurrentlyCompact = compactStates.get(element) || false;
+                
+                // Limpar timeout anterior se existir
+                if (compactTimeouts.has(element)) {
+                    clearTimeout(compactTimeouts.get(element));
+                    compactTimeouts.delete(element);
+                }
+                
+                // Usar debounce para evitar mudanças muito rápidas
+                const applyCompactChange = (shouldBeCompact) => {
+                    if (shouldBeCompact && !isCurrentlyCompact) {
+                        element.classList.add('is-compact');
+                        compactStates.set(element, true);
+                    } else if (!shouldBeCompact && isCurrentlyCompact) {
+                        element.classList.remove('is-compact');
+                        compactStates.set(element, false);
+                    }
+                };
                 
                 if (isCurrentlyCompact) {
                     // Se já está compacto, só desativa se scrollar para trás significativamente
                     if (scrollOffset < deactivateThreshold) {
-                        element.classList.remove('is-compact');
-                        compactStates.set(element, false);
+                        const timeout = setTimeout(() => {
+                            applyCompactChange(false);
+                        }, 150); // Debounce de 150ms
+                        compactTimeouts.set(element, timeout);
                     }
                 } else {
                     // Se não está compacto, só ativa se scrollar para frente significativamente
                     if (scrollOffset > activateThreshold) {
-                        element.classList.add('is-compact');
-                        compactStates.set(element, true);
+                        const timeout = setTimeout(() => {
+                            applyCompactChange(true);
+                        }, 150); // Debounce de 150ms
+                        compactTimeouts.set(element, timeout);
                     }
                 }
             } else {
                 element.classList.remove('is-sticky');
                 element.classList.remove('is-compact');
-                // Limpar o ponto de início e estado quando não está mais sticky
+                // Limpar o ponto de início, estado e timeout quando não está mais sticky
                 stickyStartPoints.delete(element);
                 compactStates.delete(element);
+                if (compactTimeouts.has(element)) {
+                    clearTimeout(compactTimeouts.get(element));
+                    compactTimeouts.delete(element);
+                }
             }
         });
     }
