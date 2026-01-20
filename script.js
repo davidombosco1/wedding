@@ -13,6 +13,32 @@ document.querySelectorAll('.nav-link').forEach(link => {
     });
 });
 
+// Detectar scroll para mudar estilo do navbar
+(function() {
+    const navbar = document.querySelector('.navbar');
+    const hero = document.querySelector('.hero');
+    
+    function checkScroll() {
+        if (!hero) return;
+        
+        const heroBottom = hero.offsetTop + hero.offsetHeight;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Se scrollou além da seção hero, adicionar classe scrolled
+        if (scrollTop > 100) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    }
+    
+    // Verificar no scroll
+    window.addEventListener('scroll', checkScroll);
+    
+    // Verificar inicialmente
+    checkScroll();
+})();
+
 // Smooth scroll
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
@@ -330,5 +356,63 @@ window.addEventListener('scroll', () => {
             setTimeout(createCarouselSlides, 500);
         }
     });
+})();
+
+// Detectar quando elementos sticky estão fixos e adicionar classe is-sticky
+// Também detecta quando o usuário está scrollando dentro da seção para compactar o cabeçalho
+(function() {
+    const stickyElements = document.querySelectorAll('.story-title-wrapper, .ceremony-title-wrapper, .confirmation-title-wrapper, .gifts-title-wrapper');
+    const stickyStartPoints = new Map(); // Armazenar quando cada elemento ficou sticky
+    
+    function checkSticky() {
+        stickyElements.forEach(element => {
+            const rect = element.getBoundingClientRect();
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const stickyTop = 70; // 70px é o top do sticky
+            
+            // Verificar se o elemento está na posição sticky (top <= 70px)
+            const isSticky = rect.top <= stickyTop;
+            
+            if (isSticky) {
+                element.classList.add('is-sticky');
+                
+                // Armazenar quando o elemento ficou sticky pela primeira vez
+                if (!stickyStartPoints.has(element)) {
+                    stickyStartPoints.set(element, scrollTop);
+                }
+                
+                // Calcular quanto o usuário scrollou desde que o cabeçalho ficou sticky
+                const startPoint = stickyStartPoints.get(element);
+                const scrollOffset = scrollTop - startPoint;
+                
+                // Se scrollou mais de 50px dentro da seção após o sticky, compactar
+                if (scrollOffset > 50) {
+                    element.classList.add('is-compact');
+                } else {
+                    element.classList.remove('is-compact');
+                }
+            } else {
+                element.classList.remove('is-sticky');
+                element.classList.remove('is-compact');
+                // Limpar o ponto de início quando não está mais sticky
+                stickyStartPoints.delete(element);
+            }
+        });
+    }
+    
+    // Verificar no scroll com throttle para performance
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                checkSticky();
+                ticking = false;
+            });
+            ticking = true;
+        }
+    });
+    
+    // Verificar inicialmente
+    checkSticky();
 })();
 

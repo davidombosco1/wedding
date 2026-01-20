@@ -157,32 +157,16 @@ function displayConfirmationScreen() {
     const existingConfirmedInfo = guestNameDisplay.parentElement.querySelectorAll('.confirmed-info');
     existingConfirmedInfo.forEach(info => info.remove());
     
-    // Se já confirmou, mostrar informações da confirmação
-    if (isConfirmed) {
-        const confirmedInfo = document.createElement('div');
-        confirmedInfo.className = 'confirmed-info';
-        
-        // Listar todas as pessoas confirmadas com numeração do chinelo
+    // Verificar se há pessoas confirmadas
         const confirmedPeople = [];
         
-        // Função para formatar nome com numeração do chinelo
-        const formatNameWithShoeSize = (name, shoeSize) => {
-            if (shoeSize && shoeSize !== 'disabled' && shoeSize !== null) {
-                return `${name} (${shoeSize})`;
-            }
-            return name;
-        };
-        
-        // Verificar se o convidado principal está confirmado
+    // Função para verificar pessoas confirmadas
+    const checkConfirmedPeople = () => {
         const mainConfirmed = currentGuestData.confirmed_guests?.includes(currentGuestData.name) || 
                               (currentGuestData.confirmed && !currentGuestData.confirmed_guests?.length);
         
         if (mainConfirmed) {
-            const mainName = formatNameWithShoeSize(
-                currentGuestData.name,
-                currentGuestData.shoe_size
-            );
-            confirmedPeople.push(mainName);
+            confirmedPeople.push(currentGuestData.name);
         }
         
         // Adicionar companions confirmados
@@ -191,14 +175,7 @@ function displayConfirmationScreen() {
                 const companionConfirmed = companion.confirmed || 
                                          currentGuestData.confirmed_guests?.includes(companion.name);
                 if (companionConfirmed) {
-                    const companionName = formatNameWithShoeSize(
-                        companion.name,
-                        companion.shoe_size
-                    );
-                    // Evitar duplicatas
-                    if (!confirmedPeople.some(p => p.startsWith(companion.name))) {
-                        confirmedPeople.push(companionName);
-                    }
+                    confirmedPeople.push(companion.name);
                 }
             });
         }
@@ -206,7 +183,165 @@ function displayConfirmationScreen() {
         // Fallback: se não encontrou ninguém, usar confirmed_guests
         if (confirmedPeople.length === 0 && currentGuestData.confirmed_guests && currentGuestData.confirmed_guests.length > 0) {
             currentGuestData.confirmed_guests.forEach(name => {
-                // Tentar encontrar shoe_size correspondente
+                confirmedPeople.push(name);
+            });
+        }
+    };
+    
+    checkConfirmedPeople();
+    
+    // Adicionar informações no card de resumo
+    const guestInfoCard = document.querySelector('.guest-info-card');
+    if (guestInfoCard) {
+        // Remover informações anteriores se existirem
+        const existingSummary = guestInfoCard.querySelector('.guest-confirmation-summary');
+        if (existingSummary) {
+            existingSummary.remove();
+        }
+        
+        // Remover foto anterior se existir
+        const existingPhoto = guestInfoCard.querySelector('.guest-photo-container');
+        if (existingPhoto) {
+            existingPhoto.remove();
+        }
+        
+        // Remover classe has-photo se existir
+        guestInfoCard.classList.remove('has-photo');
+        
+        // Verificar se precisa criar wrapper de conteúdo
+        let contentWrapper = guestInfoCard.querySelector('.guest-info-card-content');
+        if (!contentWrapper) {
+            // Criar wrapper e mover conteúdo existente
+            const guestNameDisplay = guestInfoCard.querySelector('h3');
+            const guestCodeDisplay = guestInfoCard.querySelector('.guest-code-display');
+            
+            contentWrapper = document.createElement('div');
+            contentWrapper.className = 'guest-info-card-content';
+            
+            // Mover elementos para o wrapper (não clonar, mover de fato)
+            if (guestNameDisplay && guestNameDisplay.parentElement === guestInfoCard) {
+                contentWrapper.appendChild(guestNameDisplay);
+            }
+            if (guestCodeDisplay && guestCodeDisplay.parentElement === guestInfoCard) {
+                contentWrapper.appendChild(guestCodeDisplay);
+            }
+            
+            guestInfoCard.appendChild(contentWrapper);
+        }
+        
+        // Adicionar foto se houver confirmação e foto disponível
+        // Adicionar foto se houver confirmação e foto disponível
+        if (confirmedPeople.length > 0 && currentGuestData.photo_url) {
+            // Remover foto anterior se existir
+            const existingPhotoContainer = guestInfoCard.querySelector('.guest-photo-container');
+            if (existingPhotoContainer) {
+                existingPhotoContainer.remove();
+            }
+            
+            const photoContainer = document.createElement('div');
+            photoContainer.className = 'guest-photo-container';
+            
+            const photoDiv = document.createElement('div');
+            photoDiv.className = 'guest-photo-polaroid';
+            
+            const photoImg = document.createElement('img');
+            photoImg.alt = currentGuestData.name;
+            photoImg.className = 'guest-photo-polaroid-img';
+            
+            // Inicialmente esconder até confirmar que carregou
+            photoContainer.style.display = 'none';
+            
+            // Verificar se a imagem carrega corretamente
+            photoImg.onload = () => {
+                // Se carregar, mostrar e adicionar classe has-photo
+                photoContainer.style.display = 'flex';
+                guestInfoCard.classList.add('has-photo');
+            };
+            
+            photoImg.onerror = () => {
+                // Se não carregar, remover o container e não adicionar classe has-photo
+                photoContainer.remove();
+                guestInfoCard.classList.remove('has-photo');
+            };
+            
+            // Definir src depois dos handlers para garantir que os eventos sejam capturados
+            photoImg.src = currentGuestData.photo_url;
+            
+            // Se a imagem já estiver em cache, verificar se está completa
+            if (photoImg.complete) {
+                if (photoImg.naturalWidth > 0) {
+                    // Imagem carregada com sucesso
+                    photoContainer.style.display = 'flex';
+                    guestInfoCard.classList.add('has-photo');
+                } else {
+                    // Imagem falhou ao carregar
+                    photoContainer.remove();
+                    guestInfoCard.classList.remove('has-photo');
+                }
+            }
+            
+            photoDiv.appendChild(photoImg);
+            photoContainer.appendChild(photoDiv);
+            
+            // Inserir no início do card (antes do contentWrapper)
+            guestInfoCard.insertBefore(photoContainer, contentWrapper);
+        } else {
+            // Remover foto e classe se não houver confirmação ou foto
+            const existingPhotoContainer = guestInfoCard.querySelector('.guest-photo-container');
+            if (existingPhotoContainer) {
+                existingPhotoContainer.remove();
+            }
+            guestInfoCard.classList.remove('has-photo');
+        }
+        
+        if (confirmedPeople.length > 0) {
+            const confirmDate = currentGuestData.confirmed_at 
+                ? new Date(currentGuestData.confirmed_at).toLocaleDateString('pt-BR', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })
+                : 'anteriormente';
+            
+            const deadlineInfo = canUndo ? (() => {
+                const deadlineDate = formatDeadlineDate();
+                return deadlineDate ? `<p class="guest-confirmation-info">Você pode editar sua confirmação até ${deadlineDate}.</p>` : '<p class="guest-confirmation-info">Você pode editar sua confirmação.</p>';
+            })() : '';
+            
+            const confirmationInfo = document.createElement('div');
+            confirmationInfo.className = 'guest-confirmation-summary';
+            confirmationInfo.innerHTML = `
+                <p class="guest-confirmation-date">✓ Confirmado em <strong>${confirmDate}</strong></p>
+                ${deadlineInfo}
+            `;
+            contentWrapper.appendChild(confirmationInfo);
+        } else {
+            const confirmationInfo = document.createElement('div');
+            confirmationInfo.className = 'guest-confirmation-summary';
+            confirmationInfo.innerHTML = `
+                <p class="guest-confirmation-date">Não confirmado</p>
+            `;
+            contentWrapper.appendChild(confirmationInfo);
+        }
+    }
+    
+    // Criar card de informações detalhadas da confirmação apenas se houver pessoas confirmadas
+    if (confirmedPeople.length > 0) {
+        const confirmedInfo = document.createElement('div');
+        confirmedInfo.className = 'confirmed-info';
+        
+        // Função para formatar nome com numeração da sandália
+        const formatNameWithShoeSize = (name, shoeSize) => {
+            if (shoeSize && shoeSize !== 'disabled' && shoeSize !== null) {
+                return `${name} (${shoeSize})`;
+            }
+            return name;
+        };
+        
+        // Formatar nomes com numeração da sandália
+        const confirmedPeopleFormatted = confirmedPeople.map(name => {
                 let shoeSize = null;
                 if (name === currentGuestData.name) {
                     shoeSize = currentGuestData.shoe_size;
@@ -216,17 +351,16 @@ function displayConfirmationScreen() {
                         shoeSize = companion.shoe_size;
                     }
                 }
-                confirmedPeople.push(formatNameWithShoeSize(name, shoeSize));
+            return formatNameWithShoeSize(name, shoeSize);
             });
-        }
         
         let confirmedPeopleHTML = '';
-        if (confirmedPeople.length > 0) {
+        if (confirmedPeopleFormatted.length > 0) {
             confirmedPeopleHTML = `
                 <div class="confirmed-people-list">
-                    <strong>Pessoas confirmadas (${confirmedPeople.length}):</strong>
+                    <strong>Pessoas confirmadas (${confirmedPeopleFormatted.length}):</strong>
                     <ul class="confirmed-people-ul">
-                        ${confirmedPeople.map(name => `<li>${name}</li>`).join('')}
+                        ${confirmedPeopleFormatted.map(name => `<li>${name}</li>`).join('')}
                     </ul>
                 </div>
             `;
@@ -237,10 +371,6 @@ function displayConfirmationScreen() {
             ${confirmedPeopleHTML}
             ${currentGuestData.confirmed_at ? `<p class="confirmed-date">Confirmado em: ${new Date(currentGuestData.confirmed_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>` : ''}
             ${currentGuestData.phone ? `<p class="confirmed-phone">Telefone: ${currentGuestData.phone}</p>` : ''}
-            ${canUndo ? (() => {
-                const deadlineDate = formatDeadlineDate();
-                return deadlineDate ? `<p class="undo-note">Você pode desfazer esta confirmação até ${deadlineDate}.</p>` : '<p class="undo-note">Você pode desfazer esta confirmação.</p>';
-            })() : ''}
         `;
         guestNameDisplay.parentElement.appendChild(confirmedInfo);
     }
@@ -248,7 +378,127 @@ function displayConfirmationScreen() {
     // Criar checkboxes para o convidado principal e acompanhantes
     guestsCheckboxes.innerHTML = '';
     
+    // Se já confirmou, esconder o bloco completo e criar botão para mostrar/esconder
+    const guestsListContainer = document.querySelector('.guests-list');
+    const confirmationForm = document.querySelector('#confirmation-form');
+    
+    // Encontrar campos de telefone e mensagem usando seletores específicos
+    const phoneField = confirmationForm?.querySelector('label[for="phone"]')?.closest('.form-group');
+    const messageField = confirmationForm?.querySelector('label[for="message"]')?.closest('.form-group');
+    const submitButton = confirmationForm?.querySelector('button[type="submit"]');
+    const backButton = confirmationForm?.querySelector('#back-to-code-btn');
+    
+    if (guestsListContainer && confirmationForm && isConfirmed && confirmedPeople.length > 0) {
+        // Verificar se já existe o botão toggle
+        let editButton = confirmationForm.querySelector('.edit-confirmation-toggle-btn');
+        
+        if (!editButton) {
+            // Criar botão toggle antes do guests-list
+            editButton = document.createElement('button');
+            editButton.type = 'button';
+            editButton.className = 'edit-confirmation-toggle-btn';
+            editButton.textContent = 'Altere sua confirmação';
+            
+            // Esconder todos os campos do formulário inicialmente
+            guestsListContainer.style.display = 'none';
+            guestsListContainer.classList.add('hidden-by-default');
+            
+            // Esconder campos de telefone e mensagem
+            if (phoneField) {
+                phoneField.style.display = 'none';
+                phoneField.classList.add('hidden-by-default');
+            }
+            if (messageField) {
+                messageField.style.display = 'none';
+                messageField.classList.add('hidden-by-default');
+            }
+            
+            // Esconder botões de submit e voltar
+            if (submitButton) {
+                submitButton.style.display = 'none';
+                submitButton.classList.add('hidden-by-default');
+            }
+            if (backButton) {
+                backButton.style.display = 'none';
+                backButton.classList.add('hidden-by-default');
+            }
+            
+            // Adicionar evento de clique para mostrar/esconder
+            editButton.addEventListener('click', () => {
+                const isHidden = guestsListContainer.style.display === 'none';
+                
+                if (isHidden) {
+                    // Mostrar formulário e esconder botão
+                    guestsListContainer.style.display = 'block';
+                    editButton.style.display = 'none';
+                    
+                    if (phoneField) {
+                        phoneField.style.display = 'block';
+                    }
+                    if (messageField) {
+                        messageField.style.display = 'block';
+                    }
+                    if (submitButton) {
+                        submitButton.style.display = 'block';
+                    }
+                    if (backButton) {
+                        backButton.style.display = 'block';
+                    }
+                } else {
+                    // Esconder formulário e mostrar botão
+                    guestsListContainer.style.display = 'none';
+                    editButton.style.display = 'block';
+                    
+                    if (phoneField) {
+                        phoneField.style.display = 'none';
+                    }
+                    if (messageField) {
+                        messageField.style.display = 'none';
+                    }
+                    if (submitButton) {
+                        submitButton.style.display = 'none';
+                    }
+                    if (backButton) {
+                        backButton.style.display = 'none';
+                    }
+                }
+            });
+            
+            // Inserir botão antes do guests-list dentro do form
+            confirmationForm.insertBefore(editButton, guestsListContainer);
+        }
+    } else {
+        // Se não há confirmação, garantir que está visível
+        if (guestsListContainer) {
+            guestsListContainer.style.display = 'block';
+            guestsListContainer.classList.remove('hidden-by-default');
+        }
+        if (phoneField) {
+            phoneField.style.display = 'block';
+            phoneField.classList.remove('hidden-by-default');
+        }
+        if (messageField) {
+            messageField.style.display = 'block';
+            messageField.classList.remove('hidden-by-default');
+        }
+        if (submitButton) {
+            submitButton.style.display = 'block';
+            submitButton.classList.remove('hidden-by-default');
+        }
+        if (backButton) {
+            backButton.style.display = 'block';
+            backButton.classList.remove('hidden-by-default');
+        }
+        // Remover botão toggle se existir
+        const existingToggleBtn = document.querySelector('.edit-confirmation-toggle-btn');
+        if (existingToggleBtn) {
+            existingToggleBtn.remove();
+        }
+    }
+    
     const shoeSizeOptions = ['33/34', '35/36', '37/38', '39/40', '41/42'];
+    
+    // Usar guestsCheckboxes diretamente (não precisa de actualCheckboxesContainer)
     
     // Convidado principal
     const mainGuestDiv = document.createElement('div');
@@ -267,7 +517,7 @@ function displayConfirmationScreen() {
             </label>
             ${showMainShoeSize ? `
                 <select id="shoe-size-main" name="shoe-size-main" class="shoe-size-select-inline" ${mainDisabled ? 'disabled' : ''}>
-                    <option value="">Numeração do chinelo</option>
+                    <option value="">Numeração da sandália</option>
                     ${shoeSizeOptions.map(opt => `<option value="${opt}" ${opt === mainShoeSizeValue ? 'selected' : ''}>${opt}</option>`).join('')}
                 </select>
             ` : ''}
@@ -294,7 +544,7 @@ function displayConfirmationScreen() {
                     </label>
                     ${showCompanionShoeSize ? `
                         <select id="shoe-size-companion-${index}" name="shoe-size-companion-${index}" class="shoe-size-select-inline" ${companionDisabled ? 'disabled' : ''}>
-                            <option value="">Numeração do chinelo</option>
+                            <option value="">Numeração da sandália</option>
                             ${shoeSizeOptions.map(opt => `<option value="${opt}" ${opt === companionShoeSizeValue ? 'selected' : ''}>${opt}</option>`).join('')}
                         </select>
                     ` : ''}
@@ -329,26 +579,7 @@ function displayConfirmationScreen() {
         
         // Os campos de shoe_size já são preenchidos no HTML acima
         
-        // Mostrar mensagem de confirmação anterior
-        const alreadyConfirmedMsg = document.createElement('div');
-        alreadyConfirmedMsg.className = 'already-confirmed-message';
-        const confirmDate = currentGuestData.confirmed_at 
-            ? new Date(currentGuestData.confirmed_at).toLocaleDateString('pt-BR', { 
-                day: '2-digit', 
-                month: '2-digit', 
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            })
-            : 'anteriormente';
-        alreadyConfirmedMsg.innerHTML = `
-            <p>✓ Você já confirmou sua presença em <strong>${confirmDate}</strong></p>
-            ${canUndo ? (() => {
-                const deadlineDate = formatDeadlineDate();
-                return deadlineDate ? `<p class="edit-note">Você pode editar sua confirmação abaixo até ${deadlineDate}.</p>` : '<p class="edit-note">Você pode editar sua confirmação abaixo.</p>';
-            })() : '<p class="edit-note-disabled">O prazo para editar a confirmação expirou.</p>'}
-        `;
-        confirmationForm.insertBefore(alreadyConfirmedMsg, confirmationForm.firstChild);
+        // Mensagem removida - informações agora estão no card de resumo
         
         // Se não pode editar, desabilitar formulário completamente
         if (!canUndo) {
@@ -486,7 +717,7 @@ async function confirmPresence(event) {
     if (missingShoeSizes.length > 0) {
         const namesList = missingShoeSizes.join(', ');
         reenableSubmitButton(submitBtn, isConfirmed);
-        showErrorModal(`Por favor, selecione a numeração do chinelo para: ${namesList}`);
+        showErrorModal(`Por favor, selecione a numeração da sandália para: ${namesList}`);
         return;
     }
 
@@ -792,15 +1023,83 @@ function showThankYouModal(confirmedGuests) {
         `;
         document.body.appendChild(thankYouModal);
         
+        // Função para adicionar foto ao card de resumo
+        const addPhotoToGuestCard = () => {
+            const guestInfoCard = document.querySelector('.guest-info-card');
+            if (guestInfoCard && currentGuestData.photo_url) {
+                // Remover foto anterior se existir
+                const existingPhoto = guestInfoCard.querySelector('.guest-photo-container');
+                if (existingPhoto) {
+                    existingPhoto.remove();
+                }
+                
+                // Criar container da foto
+                const photoContainer = document.createElement('div');
+                photoContainer.className = 'guest-photo-container';
+                
+                const photoDiv = document.createElement('div');
+                photoDiv.className = 'guest-photo-polaroid';
+                
+                const photoImg = document.createElement('img');
+                photoImg.alt = currentGuestData.name;
+                photoImg.className = 'guest-photo-polaroid-img';
+                
+                // Inicialmente esconder até confirmar que carrega
+                photoContainer.style.display = 'none';
+                
+                // Verificar se a imagem carrega corretamente
+                photoImg.onload = () => {
+                    // Se carregar, mostrar e adicionar classe has-photo
+                    photoContainer.style.display = 'flex';
+                    guestInfoCard.classList.add('has-photo');
+                };
+                
+                photoImg.onerror = () => {
+                    // Se não carregar, remover o container e não adicionar classe has-photo
+                    photoContainer.remove();
+                    guestInfoCard.classList.remove('has-photo');
+                };
+                
+                // Definir src depois dos handlers para garantir que os eventos sejam capturados
+                photoImg.src = currentGuestData.photo_url;
+                
+                // Se a imagem já estiver em cache, verificar se está completa
+                if (photoImg.complete) {
+                    if (photoImg.naturalWidth > 0) {
+                        // Imagem carregada com sucesso
+                        photoContainer.style.display = 'flex';
+                        guestInfoCard.classList.add('has-photo');
+                    } else {
+                        // Imagem falhou ao carregar
+                        photoContainer.remove();
+                        guestInfoCard.classList.remove('has-photo');
+                    }
+                }
+                
+                photoDiv.appendChild(photoImg);
+                photoContainer.appendChild(photoDiv);
+                
+                // Inserir após o código do convidado
+                const guestCodeDisplay = guestInfoCard.querySelector('.guest-code-display');
+                if (guestCodeDisplay) {
+                    guestInfoCard.insertBefore(photoContainer, guestCodeDisplay.nextSibling);
+                } else {
+                    guestInfoCard.appendChild(photoContainer);
+                }
+            }
+        };
+        
         // Fechar modal ao clicar no X ou fora
         const closeBtn = thankYouModal.querySelector('.close-thank-you-modal');
         closeBtn.addEventListener('click', () => {
             thankYouModal.style.display = 'none';
+            addPhotoToGuestCard();
         });
         
         thankYouModal.addEventListener('click', (e) => {
             if (e.target === thankYouModal) {
                 thankYouModal.style.display = 'none';
+                addPhotoToGuestCard();
             }
         });
     }
@@ -808,22 +1107,37 @@ function showThankYouModal(confirmedGuests) {
     // Preencher informações
     const photoImg = thankYouModal.querySelector('#thank-you-photo');
     const namesList = thankYouModal.querySelector('#thank-you-names');
-    const photoContainer = thankYouModal.querySelector('.thank-you-photo');
+    const photoContainer = thankYouModal.querySelector('.thank-you-photo-container');
     
-    // Foto do convidado
-    if (currentGuestData.photo_url) {
+    // Foto do convidado - verificar se existe e é válida
+    if (currentGuestData.photo_url && photoImg && photoContainer) {
         photoImg.src = currentGuestData.photo_url;
         photoImg.alt = currentGuestData.name;
-        photoImg.style.display = 'block';
-        photoContainer.style.display = 'block';
-    } else {
+        
+        // Inicialmente esconder até confirmar que carrega
         photoImg.style.display = 'none';
         photoContainer.style.display = 'none';
+        
+        // Verificar se a imagem carrega corretamente
+        photoImg.onload = () => {
+        photoImg.style.display = 'block';
+            photoContainer.style.display = 'flex';
+        };
+        
+        photoImg.onerror = () => {
+            // Se a imagem não carregar, esconder o container da foto
+        photoImg.style.display = 'none';
+        photoContainer.style.display = 'none';
+        };
+    } else {
+        // Sem foto_url ou elementos não encontrados, esconder completamente
+        if (photoImg) photoImg.style.display = 'none';
+        if (photoContainer) photoContainer.style.display = 'none';
     }
     
     // Lista de nomes confirmados
     const names = confirmedGuests.map(g => g.name).join(', ');
-    namesList.textContent = `Estamos ansiosos para celebrar com você${confirmedGuests.length > 1 ? 's' : ''}: ${names}`;
+    namesList.textContent = `Que honra! Nosso dia será ainda mais especial pois celebraremos com você${confirmedGuests.length > 1 ? 's' : ''}: ${names}`;
     
     // Mostrar modal
     thankYouModal.style.display = 'flex';

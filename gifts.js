@@ -135,7 +135,7 @@ function escapeHtml(text) {
 // Criar placeholder SVG em base64 (sem emoji para evitar problemas com btoa)
 function getPlaceholderImage() {
     // SVG simples sem emoji - apenas texto "Presente"
-    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="#F9D3C2"/><text x="50%" y="50%" font-family="Arial, sans-serif" font-size="24" fill="#6B705C" text-anchor="middle" dy=".3em">Presente</text></svg>';
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="#FFEEF3"/><text x="50%" y="50%" font-family="Arial, sans-serif" font-size="24" fill="#6B705C" text-anchor="middle" dy=".3em">Presente</text></svg>';
     // Converter para base64 de forma segura
     try {
         return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
@@ -256,27 +256,79 @@ if (document.readyState === 'loading') {
 
 // Configurar filtros
 function setupFilters() {
-    // Filtro por tema (abas)
+    // Função para sincronizar filtros
+    const syncFilters = (sourceTab, allTabs) => {
+        allTabs.forEach(t => t.classList.remove('active'));
+        sourceTab.classList.add('active');
+        applyFilters();
+    };
+    
+    // Filtro por tema (abas) - versão normal
     const temaTabs = document.querySelectorAll('.filter-tab');
     temaTabs.forEach(tab => {
         tab.addEventListener('click', () => {
-            temaTabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            applyFilters();
+            // Sincronizar com filtros compactos
+            const tema = tab.dataset.tema;
+            const compactTabs = document.querySelectorAll('.filter-tab-compact');
+            compactTabs.forEach(ct => {
+                if (ct.dataset.tema === tema) {
+                    syncFilters(ct, compactTabs);
+                }
+            });
+            syncFilters(tab, temaTabs);
         });
     });
 
-    // Filtro por faixa (select)
+    // Filtro por tema (abas) - versão compacta
+    const temaTabsCompact = document.querySelectorAll('.filter-tab-compact');
+    temaTabsCompact.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Sincronizar com filtros normais
+            const tema = tab.dataset.tema;
+            const normalTabs = document.querySelectorAll('.filter-tab');
+            normalTabs.forEach(nt => {
+                if (nt.dataset.tema === tema) {
+                    syncFilters(nt, normalTabs);
+                }
+            });
+            syncFilters(tab, temaTabsCompact);
+        });
+    });
+
+    // Filtro por faixa (select) - versão normal
     const faixaFilter = document.getElementById('faixa-filter');
     if (faixaFilter) {
-        faixaFilter.addEventListener('change', applyFilters);
+        faixaFilter.addEventListener('change', () => {
+            // Sincronizar com filtro compacto
+            const faixaFilterCompact = document.getElementById('faixa-filter-compact');
+            if (faixaFilterCompact) {
+                faixaFilterCompact.value = faixaFilter.value;
+            }
+            applyFilters();
+        });
+    }
+    
+    // Filtro por faixa (select) - versão compacta
+    const faixaFilterCompact = document.getElementById('faixa-filter-compact');
+    if (faixaFilterCompact) {
+        faixaFilterCompact.addEventListener('change', () => {
+            // Sincronizar com filtro normal
+            if (faixaFilter) {
+                faixaFilter.value = faixaFilterCompact.value;
+            }
+            applyFilters();
+        });
     }
 }
 
 // Aplicar filtros
 function applyFilters() {
-    const activeTema = document.querySelector('.filter-tab.active')?.dataset.tema || 'todos';
-    const selectedFaixa = document.getElementById('faixa-filter')?.value || 'todos';
+    // Verificar filtros normais ou compactos
+    const activeTemaTab = document.querySelector('.filter-tab.active') || document.querySelector('.filter-tab-compact.active');
+    const activeTema = activeTemaTab?.dataset.tema || 'todos';
+    
+    const faixaFilter = document.getElementById('faixa-filter') || document.getElementById('faixa-filter-compact');
+    const selectedPriceCluster = faixaFilter?.value || 'todos';
 
     let filteredGifts = [...allGifts];
 
@@ -285,9 +337,26 @@ function applyFilters() {
         filteredGifts = filteredGifts.filter(gift => gift.tema === activeTema);
     }
 
-    // Filtrar por faixa
-    if (selectedFaixa !== 'todos') {
-        filteredGifts = filteredGifts.filter(gift => gift.faixa === selectedFaixa);
+    // Filtrar por cluster de preço
+    if (selectedPriceCluster !== 'todos') {
+        filteredGifts = filteredGifts.filter(gift => {
+            const valor = parseFloat(gift.valor) || 0;
+            
+            switch(selectedPriceCluster) {
+                case '0-100':
+                    return valor >= 0 && valor <= 100;
+                case '100-300':
+                    return valor > 100 && valor <= 300;
+                case '300-500':
+                    return valor > 300 && valor <= 500;
+                case '500-1000':
+                    return valor > 500 && valor <= 1000;
+                case '1000+':
+                    return valor > 1000;
+                default:
+                    return true;
+            }
+        });
     }
 
     renderGifts(filteredGifts);
