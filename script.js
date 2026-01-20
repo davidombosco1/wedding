@@ -518,11 +518,10 @@ window.addEventListener('scroll', () => {
                 const startPoint = stickyStartPoints.get(element);
                 const scrollOffset = scrollTop - startPoint;
                 
-                // Histérese mais agressiva para evitar alternância rápida
-                // Valores muito diferentes para ativar e desativar
+                // Histérese para evitar alternância rápida, mas com valores mais razoáveis
                 const isMobile = window.innerWidth <= 768;
-                const activateThreshold = isMobile ? 150 : 100; // Ativar compacto após muito mais scroll
-                const deactivateThreshold = isMobile ? 80 : 50; // Desativar compacto com menos scroll
+                const activateThreshold = isMobile ? 80 : 60; // Ativar compacto após scroll moderado
+                const deactivateThreshold = isMobile ? 40 : 30; // Desativar compacto com menos scroll
                 
                 const isCurrentlyCompact = compactStates.get(element) || false;
                 
@@ -532,7 +531,7 @@ window.addEventListener('scroll', () => {
                     compactTimeouts.delete(element);
                 }
                 
-                // Usar debounce para evitar mudanças muito rápidas
+                // Usar debounce menor para resposta mais rápida
                 const applyCompactChange = (shouldBeCompact) => {
                     if (shouldBeCompact && !isCurrentlyCompact) {
                         element.classList.add('is-compact');
@@ -548,7 +547,7 @@ window.addEventListener('scroll', () => {
                     if (scrollOffset < deactivateThreshold) {
                         const timeout = setTimeout(() => {
                             applyCompactChange(false);
-                        }, 150); // Debounce de 150ms
+                        }, 50); // Debounce menor de 50ms
                         compactTimeouts.set(element, timeout);
                     }
                 } else {
@@ -556,7 +555,7 @@ window.addEventListener('scroll', () => {
                     if (scrollOffset > activateThreshold) {
                         const timeout = setTimeout(() => {
                             applyCompactChange(true);
-                        }, 150); // Debounce de 150ms
+                        }, 50); // Debounce menor de 50ms
                         compactTimeouts.set(element, timeout);
                     }
                 }
