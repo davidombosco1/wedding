@@ -494,7 +494,15 @@ window.addEventListener('scroll', () => {
             const stickyTop = 70; // 70px é o top do sticky
             
             // Verificar se o elemento está na posição sticky (top <= 70px)
-            const isSticky = rect.top <= stickyTop;
+            // Para gifts-title-wrapper, verificar se está dentro da seção pai
+            const parentSection = element.closest('section');
+            let isSticky = rect.top <= stickyTop;
+            
+            if (element.classList.contains('gifts-title-wrapper') && parentSection) {
+                const parentRect = parentSection.getBoundingClientRect();
+                // O elemento está sticky se está na posição sticky E ainda está dentro da seção pai
+                isSticky = rect.top <= stickyTop && parentRect.bottom > stickyTop;
+            }
             
             if (isSticky) {
                 element.classList.add('is-sticky');

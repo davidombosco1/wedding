@@ -183,7 +183,7 @@ h1, h2, h3 {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center 60%;
+    object-position: center 65%;
     filter: brightness(0.85);
 }
 
@@ -203,7 +203,7 @@ h1, h2, h3 {
     text-align: center;
     max-width: 800px;
     width: 100%;
-    padding: 180px 2rem 2rem 2rem;
+    padding: 120px 2rem 2rem 2rem;
 }
 
 .hero-title {
@@ -218,7 +218,7 @@ h1, h2, h3 {
 .hero-subtitle {
     font-size: 1.3rem;
     color: #F9F9F9;
-    margin-bottom: 3rem;
+    margin-bottom: 1.5rem;
     font-style: italic;
     text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
     letter-spacing: 1px;
@@ -311,6 +311,16 @@ h1, h2, h3 {
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     opacity: 0.85;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .story-title-wrapper.is-compact {
+        padding: 1rem 0 1rem 0 !important;
+    }
 }
 
 .story-title-wrapper.is-compact .container {
@@ -321,13 +331,34 @@ h1, h2, h3 {
     padding-right: 20px;
 }
 
+@media (max-width: 768px) {
+    .story-title-wrapper.is-compact .container {
+        text-align: right !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+}
+
 .story-title-wrapper.is-compact .section-title,
 .story-section .story-title-wrapper.is-compact .section-title {
     font-size: 2.1rem;
-    padding-bottom: 0.6rem;
+    padding-bottom: 0;
+    padding-top: 0;
     padding-left: 0 !important;
+    margin: 0;
     text-align: left !important;
     transition: font-size 0.4s ease, padding-bottom 0.4s ease, text-align 0.4s ease, padding-left 0.4s ease;
+}
+
+@media (max-width: 768px) {
+    .story-title-wrapper.is-compact .section-title,
+    .story-section .story-title-wrapper.is-compact .section-title {
+        text-align: right !important;
+        font-size: 1.3rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
 }
 
 .story-title-wrapper .container {
@@ -576,6 +607,16 @@ h1, h2, h3 {
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     opacity: 0.85;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .ceremony-title-wrapper.is-compact {
+        padding: 1rem 0 1rem 0 !important;
+    }
 }
 
 .ceremony-title-wrapper.is-compact .container {
@@ -586,13 +627,34 @@ h1, h2, h3 {
     padding-right: 20px;
 }
 
+@media (max-width: 768px) {
+    .ceremony-title-wrapper.is-compact .container {
+        text-align: right !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+}
+
 .ceremony-title-wrapper.is-compact .section-title,
 .ceremony-section .ceremony-title-wrapper.is-compact .section-title {
     font-size: 2.1rem !important;
-    padding-bottom: 0.6rem;
+    padding-bottom: 0;
+    padding-top: 0;
     padding-left: 0 !important;
+    margin: 0;
     text-align: left !important;
     transition: font-size 0.4s ease, padding-bottom 0.4s ease, text-align 0.4s ease, padding-left 0.4s ease;
+}
+
+@media (max-width: 768px) {
+    .ceremony-title-wrapper.is-compact .section-title,
+    .ceremony-section .ceremony-title-wrapper.is-compact .section-title {
+        text-align: right !important;
+        font-size: 1.3rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
 }
 
 .ceremony-title-wrapper .section-title {
@@ -823,6 +885,16 @@ h1, h2, h3 {
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     opacity: 0.85;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    display: flex;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .confirmation-title-wrapper.is-compact {
+        padding: 1rem 0 1rem 0 !important;
+    }
 }
 
 .confirmation-title-wrapper.is-compact .container {
@@ -833,14 +905,36 @@ h1, h2, h3 {
     padding-right: 20px;
 }
 
+@media (max-width: 768px) {
+    .confirmation-title-wrapper.is-compact .container {
+        text-align: right !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+}
+
 .confirmation-title-wrapper.is-compact .section-title,
 .confirmation-section .confirmation-title-wrapper.is-compact .section-title,
 .confirmation-section .confirmation-title-wrapper.is-compact .container .section-title {
     font-size: 2.1rem !important;
-    padding-bottom: 0.6rem !important;
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
     padding-left: 0 !important;
+    margin: 0 !important;
     text-align: left !important;
     transition: font-size 0.4s ease, padding-bottom 0.4s ease, text-align 0.4s ease, padding-left 0.4s ease !important;
+}
+
+@media (max-width: 768px) {
+    .confirmation-title-wrapper.is-compact .section-title,
+    .confirmation-section .confirmation-title-wrapper.is-compact .section-title,
+    .confirmation-section .confirmation-title-wrapper.is-compact .container .section-title {
+        text-align: right !important;
+        font-size: 1.3rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
 }
 
 .confirmation-title-wrapper .section-title {
@@ -1794,6 +1888,7 @@ h1, h2, h3 {
 .gifts-section {
     padding: 80px 10px;
     background: #F9F9F9;
+    position: relative;
 }
 
 .gifts-title-wrapper {
@@ -1808,16 +1903,140 @@ h1, h2, h3 {
     padding: 2rem 0 1rem 0;
     will-change: padding, margin-bottom, background, opacity;
     min-height: auto;
+    width: 100%;
+    display: block;
+    clear: both;
+    align-self: flex-start;
+}
+
+@media (max-width: 768px) {
+    .gifts-section {
+        position: relative;
+        overflow: visible !important;
+        padding: 2rem 10px 80px 10px !important;
+    }
+    
+    .gifts-title-wrapper {
+        position: sticky !important;
+        top: 70px !important;
+        z-index: 100 !important;
+        width: calc(100% + 20px) !important;
+        margin-left: -10px !important;
+        margin-right: -10px !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+        background: #E7E6B1 !important;
+        backdrop-filter: blur(10px) !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    .gifts-title-wrapper.is-sticky {
+        background: #E7E6B1 !important;
+        backdrop-filter: blur(10px) !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    .gifts-title-wrapper .container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+    }
+    
+    .gifts-title-wrapper .section-title {
+        margin-bottom: 0 !important;
+        font-size: 1.3rem !important;
+    }
+    
+    .gifts-filters-compact {
+        display: none !important;
+        flex-direction: row !important;
+        gap: 0.5rem !important;
+        opacity: 0 !important;
+        width: 100% !important;
+        align-items: flex-start !important;
+        flex-wrap: nowrap !important;
+    }
+    
+    .gifts-title-wrapper.is-sticky .gifts-filters-compact,
+    .gifts-title-wrapper.is-compact .gifts-filters-compact {
+        display: flex !important;
+        opacity: 1 !important;
+    }
+    
+    .gifts-title-wrapper.is-sticky ~ .container .gifts-filters,
+    .gifts-title-wrapper.is-compact ~ .container .gifts-filters {
+        display: none !important;
+    }
+    
+    .filter-group-compact {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.3rem !important;
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+    }
+    
+    .filter-label-compact {
+        font-size: 0.75rem !important;
+        white-space: nowrap !important;
+        margin-bottom: 0 !important;
+    }
+    
+    .filter-tabs-compact {
+        display: none !important;
+    }
+    
+    .filter-tab-compact {
+        display: none !important;
+    }
+    
+    .filter-select-categoria-mobile {
+        display: block !important;
+    }
+    
+    .filter-select-compact {
+        width: 100% !important;
+        min-width: 0 !important;
+        font-size: 0.75rem !important;
+        padding: 0.35rem 0.5rem !important;
+    }
+    
+    .gifts-section .container {
+        overflow: visible !important;
+    }
+    
+    .gifts-grid {
+        overflow: visible !important;
+    }
+    
+    /* Garantir que filtros normais apareçam quando cabeçalho não está sticky */
+    .gifts-filters {
+        display: inline-flex !important;
+    }
+    
+    /* Ocultar filtros normais quando cabeçalho está sticky */
+    .gifts-title-wrapper.is-sticky ~ .container .gifts-filters,
+    .gifts-title-wrapper.is-compact ~ .container .gifts-filters {
+        display: none !important;
+    }
 }
 
 .gifts-title-wrapper.is-compact {
-    padding: 1.2rem 0 0.6rem 0 !important;
+    padding: 1rem 0 1rem 0 !important;
     margin-bottom: 1.8rem !important;
     background: #E7E6B1;
     backdrop-filter: blur(10px);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     opacity: 0.95;
     min-height: auto;
+    border-bottom-left-radius: 15px;
+    border-bottom-right-radius: 15px;
+    display: flex;
+    align-items: center;
 }
 
 .gifts-title-wrapper .container {
@@ -1839,15 +2058,36 @@ h1, h2, h3 {
     flex-wrap: wrap;
 }
 
+@media (max-width: 768px) {
+    .gifts-title-wrapper.is-compact .container {
+        text-align: right !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+}
+
 .gifts-title-wrapper.is-compact .section-title,
 .gifts-section .gifts-title-wrapper.is-compact .section-title,
 .gifts-section .gifts-title-wrapper.is-compact .container .section-title {
     font-size: 2.1rem !important;
-    padding-bottom: 0.6rem !important;
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
     padding-left: 0 !important;
+    margin: 0 !important;
     text-align: left !important;
-    margin-bottom: 0 !important;
     transition: font-size 0.2s ease, padding-bottom 0.2s ease, text-align 0.2s ease, padding-left 0.2s ease, margin-bottom 0.2s ease !important;
+}
+
+@media (max-width: 768px) {
+    .gifts-title-wrapper.is-compact .section-title,
+    .gifts-section .gifts-title-wrapper.is-compact .section-title,
+    .gifts-section .gifts-title-wrapper.is-compact .container .section-title {
+        text-align: right !important;
+        font-size: 1.3rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
 }
 
 .gifts-title-wrapper .section-title {
@@ -1882,6 +2122,17 @@ h1, h2, h3 {
 
 .gifts-title-wrapper.is-sticky {
     opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .gifts-title-wrapper.is-sticky {
+        background: #E7E6B1 !important;
+        backdrop-filter: blur(10px) !important;
+    }
+    
+    .gifts-title-wrapper.is-compact.is-sticky {
+        background: #E7E6B1 !important;
+    }
 }
 
 /* Filtros compactos no cabeçalho */
@@ -2087,6 +2338,18 @@ h1, h2, h3 {
 .gift-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Card de presente surpresa */
+.gift-card-surprise {
+    border: 2px solid var(--terracotta);
+    background: linear-gradient(135deg, rgba(255, 238, 243, 0.3) 0%, rgba(218, 222, 145, 0.3) 100%);
+}
+
+.gift-card-surprise:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(189, 127, 145, 0.3);
+    border-color: var(--moss-deep);
 }
 
 /* Presente confirmado - opaco */
@@ -2579,26 +2842,89 @@ h1, h2, h3 {
 
 /* Responsive */
 @media (max-width: 768px) {
+    .nav-container {
+        padding: 1rem 2rem;
+    }
+    
+    .nav-logo {
+        padding-left: 0;
+    }
+    
+    .navbar.scrolled .nav-logo {
+        margin-left: auto;
+        margin-right: 1rem;
+    }
+    
     .hamburger {
         display: flex;
+        padding-right: 0;
     }
 
     .nav-menu {
         position: fixed;
-        left: -100%;
-        top: 70px;
+        top: -100%;
+        left: 0;
         flex-direction: column;
         background-color: #F9F9F9;
         width: 100%;
         text-align: center;
-        transition: 0.3s;
+        transition: top 0.3s ease;
         box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
         padding: 2rem 0;
         border-top: 2px solid var(--peach-soft);
+        z-index: 999;
+        opacity: 0;
+        visibility: hidden;
     }
+    
+    /* Reduzir fonte dos títulos de seção no modo compacto (mobile) */
+    .story-title-wrapper.is-compact .section-title,
+    /* Ajustar padding igual superior e inferior nos cabeçalhos compactos (mobile) - MAIOR ESPECIFICIDADE */
+    .story-section .story-title-wrapper.is-compact,
+    .ceremony-section .ceremony-title-wrapper.is-compact,
+    .confirmation-section .confirmation-title-wrapper.is-compact,
+    .gifts-section .gifts-title-wrapper.is-compact {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    /* Ajustar padding do container no modo compacto (mobile) - MAIOR ESPECIFICIDADE */
+    .story-section .story-title-wrapper.is-compact .container,
+    .ceremony-section .ceremony-title-wrapper.is-compact .container,
+    .confirmation-section .confirmation-title-wrapper.is-compact .container,
+    .gifts-section .gifts-title-wrapper.is-compact .container {
+        text-align: right !important;
+        padding-left: 2rem !important;
+        padding-right: 2rem !important;
+    }
+    
+    /* Ajustar títulos no modo compacto (mobile) - MAIOR ESPECIFICIDADE */
+    .story-section .story-title-wrapper.is-compact .section-title,
+    .story-section .story-title-wrapper.is-compact .container .section-title,
+    .ceremony-section .ceremony-title-wrapper.is-compact .section-title,
+    .ceremony-section .ceremony-title-wrapper.is-compact .container .section-title,
+    .confirmation-section .confirmation-title-wrapper.is-compact .section-title,
+    .confirmation-section .confirmation-title-wrapper.is-compact .container .section-title,
+    .gifts-section .gifts-title-wrapper.is-compact .section-title,
+    .gifts-section .gifts-title-wrapper.is-compact .container .section-title {
+        text-align: right !important;
+        font-size: 1.3rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        padding-left: 0 !important;
+        margin: 0 !important;
+    }
+    
 
     .nav-menu.active {
-        left: 0;
+        top: 70px;
+        opacity: 1;
+        visibility: visible;
     }
 
     .nav-menu .nav-link {
@@ -2715,6 +3041,10 @@ h1, h2, h3 {
     .hero-title {
         max-width: 300px;
     }
+    
+    .hero-content {
+        padding-top: 40px;
+    }
 
     .section-title {
         font-size: 2rem;
@@ -2722,6 +3052,14 @@ h1, h2, h3 {
 
     .countdown-container {
         flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    
+    .countdown-item {
+        flex: 0 0 calc(50% - 0.25rem);
+        max-width: calc(50% - 0.25rem);
+        padding: 0.75rem;
     }
     
     .story-text-container {

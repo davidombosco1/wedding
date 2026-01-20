@@ -87,7 +87,7 @@ function renderGifts(gifts) {
     // Placeholder SVG para quando não houver foto
     const placeholderImage = getPlaceholderImage();
     
-    giftsGrid.innerHTML = gifts.map(gift => {
+    let giftsHTML = gifts.map(gift => {
         const imageUrl = gift.foto_display && gift.foto_display.trim() !== '' 
             ? gift.foto_display 
             : placeholderImage;
@@ -116,6 +116,26 @@ function renderGifts(gifts) {
         </div>
         `;
     }).join('');
+    
+    // Adicionar card de presente surpresa no final
+    giftsHTML += `
+        <div class="gift-card gift-card-surprise">
+            <div class="gift-card-image">
+                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #FFEEF3 0%, #DADE91 100%); font-size: 4rem; color: #BD7F91;">?</div>
+            </div>
+            <div class="gift-card-content">
+                <h3 class="gift-card-name">Presente Surpresa</h3>
+                <div class="gift-card-meta">
+                    <span class="gift-card-tema">Surpresa</span>
+                    <span class="gift-card-faixa">Valor Livre</span>
+                </div>
+                <div class="gift-card-price">?</div>
+                <button class="gift-card-btn" onclick="openSurpriseGiftModal()">Presentear</button>
+            </div>
+        </div>
+    `;
+    
+    giftsGrid.innerHTML = giftsHTML;
 }
 
 // Formatar valor como moeda
@@ -174,17 +194,36 @@ async function openGiftModal(code) {
     const imageUrl = gift.foto_display && gift.foto_display.trim() !== '' 
         ? gift.foto_display 
         : placeholderImage;
+    
+    // Garantir que a imagem está visível (pode ter sido escondida pelo presente surpresa)
+    modalImg.style.display = 'block';
     modalImg.src = imageUrl;
     modalImg.alt = gift.nome;
     modalImg.onerror = function() {
         this.onerror = null;
         this.src = placeholderImage;
     };
+    
+    // Esconder mensagem de surpresa se existir
+    const modalImageContainer = modalImg.parentElement;
+    if (modalImageContainer) {
+        const messageDiv = modalImageContainer.querySelector('.surprise-message');
+        if (messageDiv) {
+            messageDiv.style.display = 'none';
+        }
+    }
+    
     modalValue.textContent = formatCurrency(gift.valor);
     modalPix.textContent = gift.pix_chave;
     
+    // Remover atributo data-pix-key se existir (do presente surpresa)
+    modalPix.removeAttribute('data-pix-key');
+    
     // Limpar formulário
     form.reset();
+    
+    // Garantir que o formulário está visível (pode ter sido escondido pelo presente surpresa)
+    form.style.display = 'block';
 
     // Mostrar modal
     modal.style.display = 'block';
@@ -220,9 +259,17 @@ function setupGiftEventListeners() {
         copyPixBtn.replaceWith(copyPixBtn.cloneNode(true));
         const newCopyBtn = document.getElementById('copy-pix-btn');
         newCopyBtn.addEventListener('click', () => {
-            const pixKey = document.getElementById('gift-modal-pix');
-            if (pixKey) {
-                navigator.clipboard.writeText(pixKey.textContent).then(() => {
+            const pixKeyElement = document.getElementById('gift-modal-pix');
+            if (pixKeyElement) {
+                // Verificar se tem atributo data-pix-key (presente surpresa)
+                let pixText = pixKeyElement.getAttribute('data-pix-key');
+                
+                if (!pixText) {
+                    // Para presentes normais, usar o texto completo
+                    pixText = pixKeyElement.textContent || pixKeyElement.innerText;
+                }
+                
+                navigator.clipboard.writeText(pixText).then(() => {
                     newCopyBtn.textContent = 'Copiado!';
                     setTimeout(() => {
                         newCopyBtn.textContent = 'Copiar';
@@ -280,6 +327,11 @@ function setupFilters() {
                     syncFilters(ct, compactTabs);
                 }
             });
+            // Sincronizar com select mobile
+            const categoriaSelectCompact = document.getElementById('categoria-filter-compact');
+            if (categoriaSelectCompact) {
+                categoriaSelectCompact.value = tema;
+            }
             syncFilters(tab, temaTabs);
         });
     });
@@ -296,9 +348,37 @@ function setupFilters() {
                     syncFilters(nt, normalTabs);
                 }
             });
+            // Sincronizar com select mobile
+            const categoriaSelectCompact = document.getElementById('categoria-filter-compact');
+            if (categoriaSelectCompact) {
+                categoriaSelectCompact.value = tema;
+            }
             syncFilters(tab, temaTabsCompact);
         });
     });
+    
+    // Filtro por categoria - select mobile (versão compacta)
+    const categoriaSelectCompact = document.getElementById('categoria-filter-compact');
+    if (categoriaSelectCompact) {
+        categoriaSelectCompact.addEventListener('change', () => {
+            const tema = categoriaSelectCompact.value;
+            // Sincronizar com botões compactos
+            const compactTabs = document.querySelectorAll('.filter-tab-compact');
+            compactTabs.forEach(ct => {
+                if (ct.dataset.tema === tema) {
+                    syncFilters(ct, compactTabs);
+                }
+            });
+            // Sincronizar com filtros normais
+            const normalTabs = document.querySelectorAll('.filter-tab');
+            normalTabs.forEach(nt => {
+                if (nt.dataset.tema === tema) {
+                    syncFilters(nt, normalTabs);
+                }
+            });
+            applyFilters();
+        });
+    }
 
     // Filtro por faixa (select) - versão normal
     const faixaFilter = document.getElementById('faixa-filter');
@@ -353,9 +433,11 @@ function setupFilters() {
 
 // Aplicar filtros
 function applyFilters() {
-    // Verificar filtros normais ou compactos
+    // Verificar select mobile primeiro, depois botões
+    const categoriaSelectCompact = document.getElementById('categoria-filter-compact');
+    const activeTemaFromSelect = categoriaSelectCompact?.value;
     const activeTemaTab = document.querySelector('.filter-tab.active') || document.querySelector('.filter-tab-compact.active');
-    const activeTema = activeTemaTab?.dataset.tema || 'todos';
+    const activeTema = activeTemaFromSelect || activeTemaTab?.dataset.tema || 'todos';
     
     const faixaFilter = document.getElementById('faixa-filter') || document.getElementById('faixa-filter-compact');
     const selectedPriceCluster = faixaFilter?.value || 'todos';
@@ -505,6 +587,91 @@ async function handleGiftConfirmation(event) {
         setTimeout(loadGifts, 100);
     }
 
+    // Abrir modal de presente surpresa
+    function openSurpriseGiftModal() {
+        const modal = document.getElementById('gift-modal');
+        const modalTitle = document.getElementById('gift-modal-title');
+        const modalImg = document.getElementById('gift-modal-img');
+        const modalValue = document.getElementById('gift-modal-value');
+        const modalPix = document.getElementById('gift-modal-pix');
+        const form = document.getElementById('gift-confirmation-form');
+
+        if (!modal || !modalTitle || !modalImg || !modalValue || !modalPix || !form) return;
+
+        // Preencher dados do modal com mensagem especial
+        modalTitle.textContent = 'Presente Surpresa';
+        
+        // Esconder a imagem e mostrar a mensagem no lugar
+        modalImg.style.display = 'none';
+        const modalImageContainer = modalImg.parentElement;
+        if (modalImageContainer) {
+            // Criar div para a mensagem se não existir
+            let messageDiv = modalImageContainer.querySelector('.surprise-message');
+            if (!messageDiv) {
+                messageDiv = document.createElement('div');
+                messageDiv.className = 'surprise-message';
+                messageDiv.style.cssText = 'width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 2rem; text-align: center; background: var(--peach-soft); border-radius: 10px;';
+                modalImageContainer.appendChild(messageDiv);
+            }
+            const surpriseMessage = 'Não achou nada interessante na lista? Deixe ser usado para nos abençoar com ousadia e criatividade. 😜';
+            messageDiv.innerHTML = `<div style="line-height: 1.8; color: var(--text-dark); font-size: 1.1rem;">${surpriseMessage}</div>`;
+            messageDiv.style.display = 'flex';
+        }
+        
+        modalValue.textContent = '?';
+        
+        // Chave PIX apenas (sem formatação)
+        const pixKey = '44778036808';
+        modalPix.textContent = pixKey;
+        
+        // Armazenar a chave PIX em um atributo data para facilitar a cópia
+        modalPix.setAttribute('data-pix-key', pixKey);
+        
+        // Limpar formulário
+        form.reset();
+        
+        // Esconder formulário de confirmação para presente surpresa (não precisa confirmar no banco)
+        form.style.display = 'none';
+
+        // Mostrar modal
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+
+        // Configurar event listeners do modal
+        setupGiftEventListeners();
+
+        // Fechar modal ao clicar no X ou overlay
+        const closeBtn = document.getElementById('gift-modal-close');
+        const overlay = modal.querySelector('.gift-modal-overlay');
+
+        const closeModal = () => {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            form.style.display = 'block'; // Restaurar formulário
+            
+            // Restaurar imagem (pode ter sido escondida pelo presente surpresa)
+            modalImg.style.display = 'block';
+            const modalImageContainer = modalImg.parentElement;
+            if (modalImageContainer) {
+                const messageDiv = modalImageContainer.querySelector('.surprise-message');
+                if (messageDiv) {
+                    messageDiv.style.display = 'none';
+                }
+            }
+            
+            currentGift = null;
+        };
+
+        if (closeBtn) {
+            closeBtn.onclick = closeModal;
+        }
+
+        if (overlay) {
+            overlay.onclick = closeModal;
+        }
+    }
+
     // Exportar funções necessárias para o escopo global
     window.openGiftModal = openGiftModal;
+    window.openSurpriseGiftModal = openSurpriseGiftModal;
 })();
