@@ -518,45 +518,26 @@ window.addEventListener('scroll', () => {
                 const startPoint = stickyStartPoints.get(element);
                 const scrollOffset = scrollTop - startPoint;
                 
-                // Histérese para evitar alternância rápida, mas com valores mais razoáveis
+                // Histérese muito mais simples e rápida para mobile
                 const isMobile = window.innerWidth <= 768;
-                const activateThreshold = isMobile ? 80 : 60; // Ativar compacto após scroll moderado
-                const deactivateThreshold = isMobile ? 40 : 30; // Desativar compacto com menos scroll
+                // No mobile, thresholds mínimos para resposta quase imediata
+                const activateThreshold = isMobile ? 20 : 40; // Ativar compacto quase imediatamente no mobile
+                const deactivateThreshold = isMobile ? 10 : 20; // Desativar compacto quase imediatamente no mobile
                 
                 const isCurrentlyCompact = compactStates.get(element) || false;
                 
-                // Limpar timeout anterior se existir
-                if (compactTimeouts.has(element)) {
-                    clearTimeout(compactTimeouts.get(element));
-                    compactTimeouts.delete(element);
-                }
-                
-                // Usar debounce menor para resposta mais rápida
-                const applyCompactChange = (shouldBeCompact) => {
-                    if (shouldBeCompact && !isCurrentlyCompact) {
-                        element.classList.add('is-compact');
-                        compactStates.set(element, true);
-                    } else if (!shouldBeCompact && isCurrentlyCompact) {
+                // Aplicar mudança imediatamente sem qualquer delay ou debounce
+                if (isCurrentlyCompact) {
+                    // Se já está compacto, só desativa se scrollar para trás
+                    if (scrollOffset < deactivateThreshold) {
                         element.classList.remove('is-compact');
                         compactStates.set(element, false);
                     }
-                };
-                
-                if (isCurrentlyCompact) {
-                    // Se já está compacto, só desativa se scrollar para trás significativamente
-                    if (scrollOffset < deactivateThreshold) {
-                        const timeout = setTimeout(() => {
-                            applyCompactChange(false);
-                        }, 50); // Debounce menor de 50ms
-                        compactTimeouts.set(element, timeout);
-                    }
                 } else {
-                    // Se não está compacto, só ativa se scrollar para frente significativamente
+                    // Se não está compacto, ativa quando passar do threshold (muito baixo no mobile)
                     if (scrollOffset > activateThreshold) {
-                        const timeout = setTimeout(() => {
-                            applyCompactChange(true);
-                        }, 50); // Debounce menor de 50ms
-                        compactTimeouts.set(element, timeout);
+                        element.classList.add('is-compact');
+                        compactStates.set(element, true);
                     }
                 }
             } else {

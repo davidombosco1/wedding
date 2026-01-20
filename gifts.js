@@ -79,17 +79,10 @@ function renderGifts(gifts) {
     const giftsGrid = document.getElementById('gifts-grid');
     if (!giftsGrid) return;
 
-    // Adicionar transição suave durante a mudança
-    giftsGrid.style.opacity = '0.5';
-    giftsGrid.style.transition = 'opacity 0.2s ease';
-    
-    // Usar requestAnimationFrame para renderização suave
-    requestAnimationFrame(() => {
-        if (gifts.length === 0) {
-            giftsGrid.innerHTML = '<div class="no-gifts-message">Nenhum presente disponível no momento.</div>';
-            giftsGrid.style.opacity = '1';
-            return;
-        }
+    if (gifts.length === 0) {
+        giftsGrid.innerHTML = '<div class="no-gifts-message">Nenhum presente disponível no momento.</div>';
+        return;
+    }
 
     // Placeholder SVG para quando não houver foto
     const placeholderImage = getPlaceholderImage();
@@ -142,13 +135,7 @@ function renderGifts(gifts) {
         </div>
     `;
     
-        giftsGrid.innerHTML = giftsHTML;
-        
-        // Restaurar opacidade após renderização
-        requestAnimationFrame(() => {
-            giftsGrid.style.opacity = '1';
-        });
-    });
+    giftsGrid.innerHTML = giftsHTML;
 }
 
 // Formatar valor como moeda
