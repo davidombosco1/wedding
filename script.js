@@ -533,15 +533,25 @@ window.addEventListener('scroll', () => {
     
     // Verificar no scroll com throttle para performance
     let ticking = false;
+    let lastScrollY = window.scrollY;
+    
     window.addEventListener('scroll', () => {
-        if (!ticking) {
+        const currentScrollY = window.scrollY;
+        const scrollDelta = Math.abs(currentScrollY - lastScrollY);
+        
+        // No mobile, verificar menos frequentemente para melhor performance
+        const isMobile = window.innerWidth <= 768;
+        const minScrollDelta = isMobile ? 5 : 1; // Mínimo de pixels scrollados antes de verificar
+        
+        if (!ticking && scrollDelta >= minScrollDelta) {
             window.requestAnimationFrame(() => {
                 checkSticky();
+                lastScrollY = currentScrollY;
                 ticking = false;
             });
             ticking = true;
         }
-    });
+    }, { passive: true });
     
     // Verificar inicialmente
     checkSticky();
