@@ -2844,20 +2844,26 @@ h1, h2, h3 {
 @media (max-width: 768px) {
     .nav-container {
         padding: 1rem 2rem;
+        justify-content: space-between;
+        gap: 1rem;
     }
     
     .nav-logo {
         padding-left: 0;
+        flex: 0 0 auto;
+        margin-right: auto;
     }
     
     .navbar.scrolled .nav-logo {
-        margin-left: auto;
-        margin-right: 1rem;
+        margin-left: 0;
+        margin-right: auto;
     }
     
     .hamburger {
         display: flex;
         padding-right: 0;
+        flex: 0 0 auto;
+        margin-left: auto;
     }
 
     .nav-menu {
