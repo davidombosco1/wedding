@@ -486,6 +486,7 @@ window.addEventListener('scroll', () => {
 (function() {
     const stickyElements = document.querySelectorAll('.story-title-wrapper, .ceremony-title-wrapper, .confirmation-title-wrapper, .gifts-title-wrapper');
     const stickyStartPoints = new Map(); // Armazenar quando cada elemento ficou sticky
+    const compactStates = new Map(); // Armazenar estado atual de compacto para cada elemento
     
     function checkSticky() {
         stickyElements.forEach(element => {
@@ -516,17 +517,33 @@ window.addEventListener('scroll', () => {
                 const startPoint = stickyStartPoints.get(element);
                 const scrollOffset = scrollTop - startPoint;
                 
-                // Se scrollou mais de 50px dentro da seção após o sticky, compactar
-                if (scrollOffset > 50) {
-                    element.classList.add('is-compact');
+                // Histérese para evitar alternância rápida entre compacto e normal
+                // Valores diferentes para ativar e desativar
+                const isMobile = window.innerWidth <= 768;
+                const activateThreshold = isMobile ? 100 : 80; // Ativar compacto após mais scroll
+                const deactivateThreshold = isMobile ? 60 : 40; // Desativar compacto com menos scroll
+                
+                const isCurrentlyCompact = compactStates.get(element) || false;
+                
+                if (isCurrentlyCompact) {
+                    // Se já está compacto, só desativa se scrollar para trás significativamente
+                    if (scrollOffset < deactivateThreshold) {
+                        element.classList.remove('is-compact');
+                        compactStates.set(element, false);
+                    }
                 } else {
-                    element.classList.remove('is-compact');
+                    // Se não está compacto, só ativa se scrollar para frente significativamente
+                    if (scrollOffset > activateThreshold) {
+                        element.classList.add('is-compact');
+                        compactStates.set(element, true);
+                    }
                 }
             } else {
                 element.classList.remove('is-sticky');
                 element.classList.remove('is-compact');
-                // Limpar o ponto de início quando não está mais sticky
+                // Limpar o ponto de início e estado quando não está mais sticky
                 stickyStartPoints.delete(element);
+                compactStates.delete(element);
             }
         });
     }
