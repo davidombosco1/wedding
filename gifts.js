@@ -150,9 +150,11 @@ function renderGifts(gifts) {
     const placeholderImage = getPlaceholderImage();
     
     let giftsHTML = gifts.map(gift => {
-        const imageUrl = gift.foto_display && gift.foto_display.trim() !== '' 
+        // Normalizar URL da imagem (converter relativa para absoluta se necessário)
+        const rawImageUrl = gift.foto_display && gift.foto_display.trim() !== '' 
             ? gift.foto_display 
-            : placeholderImage;
+            : null;
+        const imageUrl = normalizeImageUrl(rawImageUrl);
         
         // Escapar placeholderImage para uso em atributo HTML (escapar aspas simples)
         const escapedPlaceholder = placeholderImage.replace(/'/g, "&#39;");
@@ -164,7 +166,7 @@ function renderGifts(gifts) {
         return `
         <div class="${cardClass}" data-code="${gift.code}" data-status="${gift.status}" title="${tooltipText}">
             <div class="gift-card-image">
-                <img src="${imageUrl}" alt="${escapeHtml(gift.nome)}" onerror="this.onerror=null; this.src='${escapedPlaceholder}';">
+                <img src="${imageUrl}" alt="${escapeHtml(gift.nome)}" loading="lazy" onerror="this.onerror=null; this.src='${escapedPlaceholder}';">
             </div>
             <div class="gift-card-content">
                 <h3 class="gift-card-name">${escapeHtml(gift.nome)}</h3>
@@ -228,6 +230,33 @@ function getPlaceholderImage() {
     }
 }
 
+// Converter URL relativa em absoluta (necessário para GitHub Pages e mobile)
+function normalizeImageUrl(url) {
+    if (!url || url.trim() === '') {
+        return getPlaceholderImage();
+    }
+    
+    // Se já é uma URL absoluta (http:// ou https://), retornar como está
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+        return url;
+    }
+    
+    // Se é data URI, retornar como está
+    if (url.startsWith('data:')) {
+        return url;
+    }
+    
+    // Se é URL relativa, converter para absoluta baseada na origem atual
+    // Remover barra inicial se houver
+    const cleanUrl = url.startsWith('/') ? url.substring(1) : url;
+    
+    // Obter a origem atual (ex: https://yasminedavi.com)
+    const baseUrl = window.location.origin;
+    
+    // Combinar base URL com caminho relativo
+    return `${baseUrl}/${cleanUrl}`;
+}
+
 // Abrir modal de presente
 async function openGiftModal(code) {
     const gift = allGifts.find(g => g.code === code);
@@ -253,9 +282,12 @@ async function openGiftModal(code) {
     
     // Preencher dados do modal
     modalTitle.textContent = gift.nome;
-    const imageUrl = gift.foto_display && gift.foto_display.trim() !== '' 
+    
+    // Normalizar URL da imagem (converter relativa para absoluta se necessário)
+    const rawImageUrl = gift.foto_display && gift.foto_display.trim() !== '' 
         ? gift.foto_display 
-        : placeholderImage;
+        : null;
+    const imageUrl = normalizeImageUrl(rawImageUrl);
     
     // Garantir que a imagem está visível (pode ter sido escondida pelo presente surpresa)
     modalImg.style.display = 'block';
