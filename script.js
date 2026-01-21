@@ -529,24 +529,24 @@ window.addEventListener('scroll', () => {
                 const isCurrentlyCompact = compactStates.get(element) || false;
                 
                 if (isMobileDevice) {
-                    // MOBILE: Armazenar estado desejado e só aplicar quando scroll parar
-                    const activateThreshold = 50; // Ativar compacto após scroll
-                    const deactivateThreshold = 5; // Só desativar quando muito próximo do topo (quase 0)
+                    // MOBILE: Determinar estado baseado APENAS na posição (sem depender do estado atual)
+                    const activateThreshold = 80; // Ativar compacto após scroll significativo
+                    const deactivateThreshold = 10; // Só desativar quando muito próximo do topo
                     
-                    // Determinar estado desejado baseado na posição
-                    let desiredState = isCurrentlyCompact;
+                    // Determinar estado desejado baseado APENAS na posição atual
+                    // Isso evita confusão entre estados
+                    let desiredState;
                     
-                    if (isCurrentlyCompact) {
-                        // Se já está compacto, só desativa se estiver MUITO próximo do topo
-                        if (scrollOffset <= deactivateThreshold) {
-                            desiredState = false;
-                        }
-                        // Caso contrário, mantém compacto
+                    if (scrollOffset <= deactivateThreshold) {
+                        // No topo: SEMPRE versão completa
+                        desiredState = false;
+                    } else if (scrollOffset >= activateThreshold) {
+                        // Após threshold: SEMPRE versão compacta
+                        desiredState = true;
                     } else {
-                        // Se não está compacto, ativa quando passar do threshold
-                        if (scrollOffset > activateThreshold) {
-                            desiredState = true;
-                        }
+                        // Zona intermediária (entre 10px e 80px): manter estado atual
+                        // Isso evita mudanças durante pequenos movimentos ou scroll lento
+                        desiredState = isCurrentlyCompact;
                     }
                     
                     // Armazenar estado desejado (não aplicar ainda)
@@ -587,10 +587,33 @@ window.addEventListener('scroll', () => {
     function applyPendingStates() {
         if (!isMobileDevice) return;
         
-        pendingStates.forEach((desiredState, element) => {
-            const currentState = compactStates.get(element) || false;
+        // Recalcular estado baseado na posição ATUAL (não usar estado pendente armazenado)
+        // Isso garante que aplicamos o estado correto para a posição final
+        stickyElements.forEach(element => {
+            if (!element.classList.contains('is-sticky')) return;
             
-            // Só aplicar se o estado desejado for diferente do atual
+            const startPoint = stickyStartPoints.get(element);
+            if (!startPoint) return;
+            
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollOffset = scrollTop - startPoint;
+            
+            const activateThreshold = 80;
+            const deactivateThreshold = 10;
+            
+            const currentState = compactStates.get(element) || false;
+            let desiredState;
+            
+            // Determinar estado baseado na posição ATUAL (quando scroll parou)
+            if (scrollOffset <= deactivateThreshold) {
+                desiredState = false; // No topo: completo
+            } else if (scrollOffset >= activateThreshold) {
+                desiredState = true; // Após threshold: compacto
+            } else {
+                desiredState = currentState; // Zona intermediária: manter atual
+            }
+            
+            // Aplicar apenas se diferente do atual
             if (desiredState !== currentState) {
                 if (desiredState) {
                     element.classList.add('is-compact');
