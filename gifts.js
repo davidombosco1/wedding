@@ -32,6 +32,9 @@ function waitForSupabase() {
     });
 }
 
+// Flag para evitar múltiplas chamadas simultâneas
+let isLoadingGifts = false;
+
 // Carregar presentes do Supabase
 async function loadGifts() {
     const giftsGrid = document.getElementById('gifts-grid');
@@ -40,14 +43,33 @@ async function loadGifts() {
         return;
     }
 
+    // Evitar múltiplas chamadas simultâneas
+    if (isLoadingGifts) {
+        console.log('Carregamento de presentes já em andamento, ignorando chamada duplicada');
+        return;
+    }
+
+    isLoadingGifts = true;
+
     try {
-        // Verificar se Supabase está disponível
+        // Verificar se Supabase está disponível com timeout
         if (!window.supabaseClient) {
-            await waitForSupabase();
+            try {
+                await Promise.race([
+                    waitForSupabase(),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout aguardando Supabase')), 10000))
+                ]);
+            } catch (timeoutError) {
+                console.error('Timeout aguardando Supabase:', timeoutError);
+                giftsGrid.innerHTML = '<div class="error-message">Erro: Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.</div>';
+                isLoadingGifts = false;
+                return;
+            }
         }
 
         if (!window.supabaseClient) {
             giftsGrid.innerHTML = '<div class="error-message">Erro: Supabase não configurado.</div>';
+            isLoadingGifts = false;
             return;
         }
 
@@ -64,13 +86,32 @@ async function loadGifts() {
 
         allGifts = data || [];
         console.log('Presentes carregados:', allGifts.length);
+        
+        // Garantir que o loading message seja removido
+        const giftsGrid = document.getElementById('gifts-grid');
+        if (giftsGrid) {
+            const loadingMessage = giftsGrid.querySelector('.loading-message');
+            if (loadingMessage) {
+                loadingMessage.remove();
+            }
+        }
+        
         // Aplicar filtros após carregar (filtro de disponibilidade está pré-selecionado)
-        applyFilters();
+        if (allGifts.length > 0) {
+            applyFilters();
+        } else {
+            // Se não houver presentes, mostrar mensagem
+            if (giftsGrid) {
+                giftsGrid.innerHTML = '<div class="no-gifts-message">Nenhum presente disponível no momento.</div>';
+            }
+        }
 
     } catch (error) {
         console.error('Erro ao carregar presentes:', error);
         const errorMsg = error.message || 'Erro desconhecido';
         giftsGrid.innerHTML = `<div class="error-message">Erro ao carregar presentes: ${errorMsg}. Verifique o console para mais detalhes.</div>`;
+    } finally {
+        isLoadingGifts = false;
     }
 }
 
