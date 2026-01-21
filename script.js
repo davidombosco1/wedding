@@ -488,7 +488,6 @@ window.addEventListener('scroll', () => {
     const stickyStartPoints = new Map(); // Armazenar quando cada elemento ficou sticky
     const compactStates = new Map(); // Armazenar estado atual de compacto para cada elemento
     const compactTimeouts = new Map(); // Timeouts para debounce das mudanças
-    const lastScrollOffsets = new Map(); // Armazenar último offset para detectar direção
     
     function checkSticky() {
         stickyElements.forEach(element => {
@@ -519,45 +518,48 @@ window.addEventListener('scroll', () => {
                 const startPoint = stickyStartPoints.get(element);
                 const scrollOffset = scrollTop - startPoint;
                 
-                // Histérese com zona morta maior e detecção de direção para evitar alternância constante
+                // Histérese com debounce para scroll manual - só atualiza quando scroll para
                 const isMobile = window.innerWidth <= 768;
                 // Thresholds maiores com zona morta significativa para estabilidade
-                const activateThreshold = isMobile ? 120 : 70; // Ativar compacto após scroll significativo
-                const deactivateThreshold = isMobile ? 50 : 30; // Desativar compacto com zona morta grande
+                const activateThreshold = isMobile ? 100 : 60; // Ativar compacto após scroll significativo
+                const deactivateThreshold = isMobile ? 40 : 25; // Desativar compacto com zona morta grande
                 
                 const isCurrentlyCompact = compactStates.get(element) || false;
-                const lastOffset = lastScrollOffsets.get(element) || scrollOffset;
-                const scrollDelta = scrollOffset - lastOffset;
                 
-                // Armazenar offset atual
-                lastScrollOffsets.set(element, scrollOffset);
-                
-                // Só aplicar mudanças se houver movimento significativo na mesma direção
-                // Isso evita alternância durante pequenos movimentos de scroll
-                const minDeltaForChange = isMobile ? 15 : 10; // Mínimo de pixels de movimento para considerar mudança
-                
-                if (isCurrentlyCompact) {
-                    // Se já está compacto, só desativa se scrollar significativamente para trás
-                    // E se o movimento for consistente (não apenas um pequeno ajuste)
-                    if (scrollOffset < deactivateThreshold && Math.abs(scrollDelta) >= minDeltaForChange && scrollDelta < 0) {
-                        element.classList.remove('is-compact');
-                        compactStates.set(element, false);
-                    }
-                } else {
-                    // Se não está compacto, só ativa após scroll significativo
-                    // E se o movimento for consistente (não apenas um pequeno ajuste)
-                    if (scrollOffset > activateThreshold && Math.abs(scrollDelta) >= minDeltaForChange && scrollDelta > 0) {
-                        element.classList.add('is-compact');
-                        compactStates.set(element, true);
-                    }
+                // Limpar timeout anterior se existir
+                if (compactTimeouts.has(element)) {
+                    clearTimeout(compactTimeouts.get(element));
                 }
+                
+                // Usar debounce: só aplicar mudanças após scroll parar (ou quase parar)
+                // No mobile, aguardar mais tempo para scroll manual
+                const debounceDelay = isMobile ? 300 : 150; // ms para aguardar antes de aplicar mudança
+                
+                const timeout = setTimeout(() => {
+                    // Aplicar mudança apenas após o scroll ter parado
+                    if (isCurrentlyCompact) {
+                        // Se já está compacto, só desativa se scrollar significativamente para trás
+                        if (scrollOffset < deactivateThreshold) {
+                            element.classList.remove('is-compact');
+                            compactStates.set(element, false);
+                        }
+                    } else {
+                        // Se não está compacto, só ativa após scroll significativo
+                        if (scrollOffset > activateThreshold) {
+                            element.classList.add('is-compact');
+                            compactStates.set(element, true);
+                        }
+                    }
+                    compactTimeouts.delete(element);
+                }, debounceDelay);
+                
+                compactTimeouts.set(element, timeout);
             } else {
                 element.classList.remove('is-sticky');
                 element.classList.remove('is-compact');
-                // Limpar o ponto de início, estado, timeout e último offset quando não está mais sticky
+                // Limpar o ponto de início, estado e timeout quando não está mais sticky
                 stickyStartPoints.delete(element);
                 compactStates.delete(element);
-                lastScrollOffsets.delete(element);
                 if (compactTimeouts.has(element)) {
                     clearTimeout(compactTimeouts.get(element));
                     compactTimeouts.delete(element);
