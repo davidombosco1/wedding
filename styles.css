@@ -2733,14 +2733,36 @@ h1, h2, h3 {
     /* Simplificar cards no mobile para evitar tremor */
     .gift-card {
         transition: none;
+        transform: translateZ(0);
+        will-change: transform;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
     }
     
     .gift-card:hover {
-        transform: none;
+        transform: translateZ(0);
+    }
+    
+    .gift-card-image {
+        transform: translateZ(0);
+        will-change: transform;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
     }
     
     .gift-card-image img {
         image-rendering: auto;
+        transform: translateZ(0);
+        will-change: transform;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+    
+    /* Otimizar grid de presentes no mobile */
+    .gifts-grid {
+        transform: translateZ(0);
+        will-change: contents;
+        contain: layout style paint;
     }
     
     .gift-modal-content {
