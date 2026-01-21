@@ -518,26 +518,45 @@ window.addEventListener('scroll', () => {
                 const startPoint = stickyStartPoints.get(element);
                 const scrollOffset = scrollTop - startPoint;
                 
-                // Histérese com thresholds menores para resposta mais rápida
+                // Lógica específica para mobile vs desktop
                 const isMobile = window.innerWidth <= 768;
-                // Thresholds reduzidos para transição mais rápida, mas ainda com zona morta
-                const activateThreshold = isMobile ? 60 : 50; // Ativar compacto mais rápido
-                const deactivateThreshold = isMobile ? 30 : 20; // Desativar compacto mais rápido
-                
                 const isCurrentlyCompact = compactStates.get(element) || false;
                 
-                // Aplicar mudança imediatamente, mas com zona morta para evitar alternância
-                if (isCurrentlyCompact) {
-                    // Se já está compacto, só desativa se scrollar para trás
-                    if (scrollOffset < deactivateThreshold) {
-                        element.classList.remove('is-compact');
-                        compactStates.set(element, false);
+                if (isMobile) {
+                    // MOBILE: Lógica mais estável - só volta para completo quando no topo
+                    const activateThreshold = 50; // Ativar compacto após scroll
+                    const deactivateThreshold = 5; // Só desativar quando muito próximo do topo (quase 0)
+                    
+                    if (isCurrentlyCompact) {
+                        // Se já está compacto, só desativa se estiver MUITO próximo do topo
+                        // Isso evita alternância durante scroll manual
+                        if (scrollOffset <= deactivateThreshold) {
+                            element.classList.remove('is-compact');
+                            compactStates.set(element, false);
+                        }
+                        // Se não estiver no topo, mantém compacto (não faz nada)
+                    } else {
+                        // Se não está compacto, ativa quando passar do threshold
+                        if (scrollOffset > activateThreshold) {
+                            element.classList.add('is-compact');
+                            compactStates.set(element, true);
+                        }
                     }
                 } else {
-                    // Se não está compacto, ativa quando passar do threshold
-                    if (scrollOffset > activateThreshold) {
-                        element.classList.add('is-compact');
-                        compactStates.set(element, true);
+                    // DESKTOP: Lógica normal com thresholds menores
+                    const activateThreshold = 50;
+                    const deactivateThreshold = 20;
+                    
+                    if (isCurrentlyCompact) {
+                        if (scrollOffset < deactivateThreshold) {
+                            element.classList.remove('is-compact');
+                            compactStates.set(element, false);
+                        }
+                    } else {
+                        if (scrollOffset > activateThreshold) {
+                            element.classList.add('is-compact');
+                            compactStates.set(element, true);
+                        }
                     }
                 }
             } else {
