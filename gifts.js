@@ -16,6 +16,12 @@ function waitForSupabase() {
             return;
         }
         
+        // Verificar se o SDK do Supabase está carregado
+        if (typeof window.supabase === 'undefined' && typeof supabase === 'undefined') {
+            reject(new Error('SDK do Supabase não foi carregado. Verifique se o script está sendo carregado corretamente.'));
+            return;
+        }
+        
         let attempts = 0;
         const maxAttempts = 50; // 5 segundos máximo (50 * 100ms)
         
@@ -26,7 +32,7 @@ function waitForSupabase() {
                 resolve();
             } else if (attempts >= maxAttempts) {
                 clearInterval(checkInterval);
-                reject(new Error('Supabase não disponível após timeout'));
+                reject(new Error('Supabase client não foi inicializado. Verifique a configuração no index.html.'));
             }
         }, 100);
     });
@@ -74,10 +80,25 @@ async function loadGifts() {
         }
 
         // Buscar TODOS os presentes (disponíveis e confirmados), ordenados por valor (menor para maior)
-        const { data, error } = await window.supabaseClient
-            .from('lista_presentes')
-            .select('*')
-            .order('valor', { ascending: true });
+        let data, error;
+        try {
+            const result = await window.supabaseClient
+                .from('lista_presentes')
+                .select('*')
+                .order('valor', { ascending: true });
+            data = result.data;
+            error = result.error;
+        } catch (networkError) {
+            console.error('Erro de rede ao buscar presentes:', networkError);
+            // Se for erro de rede, tentar identificar o tipo
+            if (networkError.message && networkError.message.includes('Load failed')) {
+                throw new Error('Erro de conexão: Não foi possível conectar ao servidor. Verifique sua conexão com a internet.');
+            } else if (networkError.message && networkError.message.includes('CORS')) {
+                throw new Error('Erro de CORS: Problema de configuração do servidor.');
+            } else {
+                throw new Error(`Erro de rede: ${networkError.message || 'Erro desconhecido'}`);
+            }
+        }
 
         if (error) {
             console.error('Erro na query do Supabase:', error);
