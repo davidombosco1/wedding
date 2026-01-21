@@ -488,9 +488,13 @@ window.addEventListener('scroll', () => {
     const stickyStartPoints = new Map(); // Armazenar quando cada elemento ficou sticky
     const compactStates = new Map(); // Armazenar estado atual de compacto para cada elemento
     const compactTimeouts = new Map(); // Timeouts para debounce das mudanças
+    const pendingStates = new Map(); // Estados pendentes para aplicar quando scroll parar (mobile)
     
     // Detecção de mobile mais robusta (considera touch e viewport)
     const isMobileDevice = window.innerWidth <= 768 || ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    
+    // Timeout global para aplicar mudanças pendentes quando scroll parar (mobile)
+    let scrollEndTimeout = null;
     
     function checkSticky() {
         stickyElements.forEach(element => {
@@ -525,25 +529,28 @@ window.addEventListener('scroll', () => {
                 const isCurrentlyCompact = compactStates.get(element) || false;
                 
                 if (isMobileDevice) {
-                    // MOBILE: Lógica mais estável - só volta para completo quando no topo
+                    // MOBILE: Armazenar estado desejado e só aplicar quando scroll parar
                     const activateThreshold = 50; // Ativar compacto após scroll
                     const deactivateThreshold = 5; // Só desativar quando muito próximo do topo (quase 0)
                     
+                    // Determinar estado desejado baseado na posição
+                    let desiredState = isCurrentlyCompact;
+                    
                     if (isCurrentlyCompact) {
                         // Se já está compacto, só desativa se estiver MUITO próximo do topo
-                        // Isso evita alternância durante scroll manual
                         if (scrollOffset <= deactivateThreshold) {
-                            element.classList.remove('is-compact');
-                            compactStates.set(element, false);
+                            desiredState = false;
                         }
-                        // Se não estiver no topo, mantém compacto (não faz nada)
+                        // Caso contrário, mantém compacto
                     } else {
                         // Se não está compacto, ativa quando passar do threshold
                         if (scrollOffset > activateThreshold) {
-                            element.classList.add('is-compact');
-                            compactStates.set(element, true);
+                            desiredState = true;
                         }
                     }
+                    
+                    // Armazenar estado desejado (não aplicar ainda)
+                    pendingStates.set(element, desiredState);
                 } else {
                     // DESKTOP: Lógica normal com thresholds menores
                     const activateThreshold = 50;
@@ -564,15 +571,39 @@ window.addEventListener('scroll', () => {
             } else {
                 element.classList.remove('is-sticky');
                 element.classList.remove('is-compact');
-                // Limpar o ponto de início, estado e timeout quando não está mais sticky
+                // Limpar o ponto de início, estado, timeout e estado pendente quando não está mais sticky
                 stickyStartPoints.delete(element);
                 compactStates.delete(element);
+                pendingStates.delete(element);
                 if (compactTimeouts.has(element)) {
                     clearTimeout(compactTimeouts.get(element));
                     compactTimeouts.delete(element);
                 }
             }
         });
+    }
+    
+    // Função para aplicar estados pendentes (mobile - quando scroll parar)
+    function applyPendingStates() {
+        if (!isMobileDevice) return;
+        
+        pendingStates.forEach((desiredState, element) => {
+            const currentState = compactStates.get(element) || false;
+            
+            // Só aplicar se o estado desejado for diferente do atual
+            if (desiredState !== currentState) {
+                if (desiredState) {
+                    element.classList.add('is-compact');
+                    compactStates.set(element, true);
+                } else {
+                    element.classList.remove('is-compact');
+                    compactStates.set(element, false);
+                }
+            }
+        });
+        
+        // Limpar estados pendentes após aplicar
+        pendingStates.clear();
     }
     
     // Verificar no scroll com throttle para performance
@@ -584,6 +615,18 @@ window.addEventListener('scroll', () => {
         const currentScrollY = window.scrollY;
         const scrollDelta = Math.abs(currentScrollY - lastScrollY);
         const currentTime = Date.now();
+        
+        // No mobile, cancelar timeout anterior e criar novo (debounce)
+        if (isMobileDevice) {
+            if (scrollEndTimeout) {
+                clearTimeout(scrollEndTimeout);
+            }
+            // Aplicar estados pendentes quando scroll parar (200ms sem scroll)
+            scrollEndTimeout = setTimeout(() => {
+                applyPendingStates();
+                scrollEndTimeout = null;
+            }, 200);
+        }
         
         // No mobile, verificar menos frequentemente e com throttle de tempo
         const minScrollDelta = isMobileDevice ? 10 : 1; // Mínimo de pixels scrollados antes de verificar
