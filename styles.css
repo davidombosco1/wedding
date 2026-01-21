@@ -1972,12 +1972,16 @@ h1, h2, h3 {
         width: 100% !important;
         align-items: flex-start !important;
         flex-wrap: nowrap !important;
+        transition: none !important;
+        visibility: hidden !important;
     }
     
     .gifts-title-wrapper.is-sticky .gifts-filters-compact,
     .gifts-title-wrapper.is-compact .gifts-filters-compact {
         display: flex !important;
         opacity: 1 !important;
+        transition: none !important;
+        visibility: visible !important;
     }
     
     .gifts-title-wrapper.is-sticky ~ .container .gifts-filters,
@@ -2759,13 +2763,6 @@ h1, h2, h3 {
     
     .copy-pix-btn {
         width: 100%;
-    }
-    
-    /* Otimizar grid de presentes no mobile */
-    .gifts-grid {
-        transform: translateZ(0);
-        will-change: contents;
-        contain: layout style paint;
     }
 }
 
