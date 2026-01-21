@@ -489,6 +489,9 @@ window.addEventListener('scroll', () => {
     const compactStates = new Map(); // Armazenar estado atual de compacto para cada elemento
     const compactTimeouts = new Map(); // Timeouts para debounce das mudanças
     
+    // Detecção de mobile mais robusta (considera touch e viewport)
+    const isMobileDevice = window.innerWidth <= 768 || ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    
     function checkSticky() {
         stickyElements.forEach(element => {
             const rect = element.getBoundingClientRect();
@@ -518,11 +521,10 @@ window.addEventListener('scroll', () => {
                 const startPoint = stickyStartPoints.get(element);
                 const scrollOffset = scrollTop - startPoint;
                 
-                // Lógica específica para mobile vs desktop
-                const isMobile = window.innerWidth <= 768;
+                // Usar detecção de mobile global (mais robusta)
                 const isCurrentlyCompact = compactStates.get(element) || false;
                 
-                if (isMobile) {
+                if (isMobileDevice) {
                     // MOBILE: Lógica mais estável - só volta para completo quando no topo
                     const activateThreshold = 50; // Ativar compacto após scroll
                     const deactivateThreshold = 5; // Só desativar quando muito próximo do topo (quase 0)
@@ -576,19 +578,22 @@ window.addEventListener('scroll', () => {
     // Verificar no scroll com throttle para performance
     let ticking = false;
     let lastScrollY = window.scrollY;
+    let lastCheckTime = 0;
     
     window.addEventListener('scroll', () => {
         const currentScrollY = window.scrollY;
         const scrollDelta = Math.abs(currentScrollY - lastScrollY);
+        const currentTime = Date.now();
         
-        // No mobile, verificar menos frequentemente para melhor performance
-        const isMobile = window.innerWidth <= 768;
-        const minScrollDelta = isMobile ? 5 : 1; // Mínimo de pixels scrollados antes de verificar
+        // No mobile, verificar menos frequentemente e com throttle de tempo
+        const minScrollDelta = isMobileDevice ? 10 : 1; // Mínimo de pixels scrollados antes de verificar
+        const minTimeDelta = isMobileDevice ? 50 : 16; // Mínimo de ms entre verificações (mobile: 50ms = ~20fps, desktop: 16ms = ~60fps)
         
-        if (!ticking && scrollDelta >= minScrollDelta) {
+        if (!ticking && scrollDelta >= minScrollDelta && (currentTime - lastCheckTime) >= minTimeDelta) {
             window.requestAnimationFrame(() => {
                 checkSticky();
                 lastScrollY = currentScrollY;
+                lastCheckTime = Date.now();
                 ticking = false;
             });
             ticking = true;
