@@ -530,7 +530,7 @@ window.addEventListener('scroll', () => {
                 
                 if (isMobileDevice) {
                     // MOBILE: Determinar estado baseado APENAS na posição (sem depender do estado atual)
-                    const activateThreshold = 80; // Ativar compacto após scroll significativo
+                    const activateThreshold = 40; // Ativar compacto mais cedo para evitar sobreposição
                     const deactivateThreshold = 10; // Só desativar quando muito próximo do topo
                     
                     // Determinar estado desejado baseado APENAS na posição atual
@@ -544,7 +544,7 @@ window.addEventListener('scroll', () => {
                         // Após threshold: SEMPRE versão compacta
                         desiredState = true;
                     } else {
-                        // Zona intermediária (entre 10px e 80px): manter estado atual
+                        // Zona intermediária (entre 10px e 40px): manter estado atual
                         // Isso evita mudanças durante pequenos movimentos ou scroll lento
                         desiredState = isCurrentlyCompact;
                     }
@@ -598,7 +598,7 @@ window.addEventListener('scroll', () => {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             const scrollOffset = scrollTop - startPoint;
             
-            const activateThreshold = 80;
+            const activateThreshold = 40; // Ativar compacto mais cedo para evitar sobreposição
             const deactivateThreshold = 10;
             
             const currentState = compactStates.get(element) || false;
