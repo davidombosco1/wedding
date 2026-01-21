@@ -3000,6 +3000,15 @@ h1, h2, h3 {
         padding: 2rem 0;
     }
     
+    /* Adicionar padding-top quando cabeçalho está sticky mas não compacto (evita sobreposição) */
+    .story-title-wrapper.is-sticky:not(.is-compact) ~ .story-layout .story-text-container {
+        padding-top: 5rem !important;
+    }
+    
+    .ceremony-title-wrapper.is-sticky:not(.is-compact) ~ .container.ceremony-container {
+        padding-top: 5rem !important;
+    }
+    
     .carousel-container {
         min-height: 400px;
     }
