@@ -543,44 +543,57 @@ window.addEventListener('scroll', () => {
                 const isCurrentlyCompact = compactStates.get(element) || false;
                 
                 if (isMobileDevice) {
-                    // MOBILE: Aplicar mudanças durante o scroll (não apenas quando para)
-                    // Usar histerese para evitar alternância quando está exatamente no threshold
-                    const activateThreshold = 80; // Ativar compacto após scroll significativo
-                    const deactivateThreshold = 10; // Só desativar quando muito próximo do topo
-                    const earlyActivateThreshold = 50; // Threshold menor para ativar quando ainda não está compacto
+                    // MOBILE: Lógica diferente para gifts (que está funcionando) e outras seções
+                    const isGiftsSection = element.classList.contains('gifts-title-wrapper');
                     
-                    // Zona intermediária: manter estado atual para evitar alternância
-                    // MAS: se não está compacto ainda e passou do threshold menor, ativar
-                    const isInIntermediateZone = scrollOffset >= deactivateThreshold && scrollOffset <= activateThreshold;
-                    
-                    if (!isInIntermediateZone) {
-                        // Fora da zona intermediária: aplicar mudanças imediatamente
-                        if (scrollOffset > activateThreshold) {
-                            // Claramente acima do threshold: ativar compacto
-                            if (!isCurrentlyCompact) {
+                    if (!isGiftsSection) {
+                        // Para outras seções: uma vez compacto, permanece até voltar ao topo
+                        const activateThreshold = 50; // Ativar compacto após scroll moderado
+                        
+                        if (!isCurrentlyCompact) {
+                            // Se não está compacto: ativar quando passar do threshold
+                            if (scrollOffset > activateThreshold) {
                                 element.classList.add('is-compact');
                                 compactStates.set(element, true);
                             }
-                        } else if (scrollOffset < deactivateThreshold) {
-                            // Claramente abaixo do threshold: desativar compacto
-                            if (isCurrentlyCompact) {
+                        } else {
+                            // Se já está compacto: só desativar quando voltar ao topo da seção (scrollOffset <= 0)
+                            // Isso evita alternância durante o scroll
+                            if (scrollOffset <= 0) {
+                                element.classList.remove('is-compact');
+                                compactStates.set(element, false);
+                            }
+                            // Caso contrário, manter compacto (não fazer nada)
+                        }
+                    } else {
+                        // Para gifts: manter lógica original que está funcionando perfeitamente
+                        const activateThreshold = 80;
+                        const deactivateThreshold = 10;
+                        const earlyActivateThreshold = 50;
+                        
+                        const isInIntermediateZone = scrollOffset >= deactivateThreshold && scrollOffset <= activateThreshold;
+                        
+                        if (!isInIntermediateZone) {
+                            if (scrollOffset > activateThreshold) {
+                                if (!isCurrentlyCompact) {
+                                    element.classList.add('is-compact');
+                                    compactStates.set(element, true);
+                                }
+                            } else if (scrollOffset < deactivateThreshold) {
+                                if (isCurrentlyCompact) {
+                                    element.classList.remove('is-compact');
+                                    compactStates.set(element, false);
+                                }
+                            }
+                        } else {
+                            if (!isCurrentlyCompact && scrollOffset >= earlyActivateThreshold) {
+                                element.classList.add('is-compact');
+                                compactStates.set(element, true);
+                            } else if (isCurrentlyCompact && scrollOffset <= deactivateThreshold + 5) {
                                 element.classList.remove('is-compact');
                                 compactStates.set(element, false);
                             }
                         }
-                    } else {
-                        // Na zona intermediária: lógica especial para evitar ficar preso
-                        if (!isCurrentlyCompact && scrollOffset >= earlyActivateThreshold) {
-                            // Se não está compacto ainda mas passou do threshold menor, ativar
-                            // Isso evita que fique preso na zona intermediária sem nunca ativar
-                            element.classList.add('is-compact');
-                            compactStates.set(element, true);
-                        } else if (isCurrentlyCompact && scrollOffset <= deactivateThreshold + 5) {
-                            // Se está compacto mas muito próximo do threshold de desativação, desativar
-                            element.classList.remove('is-compact');
-                            compactStates.set(element, false);
-                        }
-                        // Caso contrário, manter estado atual (evita alternância)
                     }
                 } else {
                     // DESKTOP: Transição imediata e suave com thresholds menores
