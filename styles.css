@@ -2092,34 +2092,43 @@ h1, h2, h3 {
     .gifts-section {
         position: relative;
         overflow: visible !important;
-        padding: 2rem 10px 80px 10px !important;
+        padding: 2rem 1rem 80px 1rem !important;
     }
     
     .gifts-title-wrapper {
         position: sticky !important;
         top: 70px !important;
         z-index: 100 !important;
-        width: calc(100% + 20px) !important;
-        margin-left: -10px !important;
-        margin-right: -10px !important;
-        padding-left: 10px !important;
-        padding-right: 10px !important;
+        /* Remover width calc e margin negativo que podem causar problemas */
+        width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
         padding-top: 1rem !important;
         padding-bottom: 1rem !important;
-        background: #E7E6B1 !important;
-        backdrop-filter: blur(10px) !important;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+        /* Versão original: background transparente */
+        background: transparent !important;
+        backdrop-filter: blur(0px) !important;
+        box-shadow: none !important;
+        /* Melhorias para evitar tilt e problemas de renderização */
+        transform: translateZ(0) !important;
+        will-change: transform !important;
+        backface-visibility: hidden !important;
+        -webkit-backface-visibility: hidden !important;
+        /* Remover contain que pode causar problemas */
     }
     
-    .gifts-title-wrapper.is-sticky {
+    /* Versão compacta: background colorido */
+    .gifts-title-wrapper.is-compact {
         background: #E7E6B1 !important;
         backdrop-filter: blur(10px) !important;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05) !important;
     }
     
     .gifts-title-wrapper .container {
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
         display: flex !important;
         flex-direction: column !important;
         gap: 0.75rem !important;
@@ -2138,19 +2147,19 @@ h1, h2, h3 {
         width: 100% !important;
         align-items: flex-start !important;
         flex-wrap: nowrap !important;
-        transition: none !important;
+        transition: opacity 0.2s ease, visibility 0.2s ease !important;
         visibility: hidden !important;
     }
     
-    .gifts-title-wrapper.is-sticky .gifts-filters-compact,
+    /* Filtros compactos aparecem APENAS quando está compacto */
+    /* No mobile, filtros só aparecem na versão reduzida do cabeçalho */
     .gifts-title-wrapper.is-compact .gifts-filters-compact {
         display: flex !important;
         opacity: 1 !important;
-        transition: none !important;
         visibility: visible !important;
     }
     
-    .gifts-title-wrapper.is-sticky ~ .container .gifts-filters,
+    /* Esconder filtros normais quando está compacto */
     .gifts-title-wrapper.is-compact ~ .container .gifts-filters {
         display: none !important;
     }
@@ -2196,15 +2205,16 @@ h1, h2, h3 {
         overflow: visible !important;
     }
     
-    /* Garantir que filtros normais apareçam quando cabeçalho não está sticky */
+    /* No mobile: SEMPRE esconder filtros normais - usar apenas filtros compactos */
     .gifts-filters {
-        display: inline-flex !important;
+        display: none !important;
     }
     
-    /* Ocultar filtros normais quando cabeçalho está sticky */
-    .gifts-title-wrapper.is-sticky ~ .container .gifts-filters,
-    .gifts-title-wrapper.is-compact ~ .container .gifts-filters {
-        display: none !important;
+    /* Filtros compactos aparecem apenas quando está compacto */
+    .gifts-title-wrapper.is-compact .gifts-filters-compact {
+        display: flex !important;
+        opacity: 1 !important;
+        visibility: visible !important;
     }
 }
 
@@ -2331,10 +2341,12 @@ h1, h2, h3 {
     min-height: 0;
 }
 
+.gifts-title-wrapper.is-sticky.is-compact .gifts-filters-compact,
 .gifts-title-wrapper.is-compact .gifts-filters-compact {
     display: flex;
     opacity: 1;
-    transition: opacity 0.2s ease, display 0s ease;
+    transition: opacity 0.2s ease, visibility 0.2s ease, display 0s ease;
+    visibility: visible;
 }
 
 .gifts-title-wrapper.is-compact .section-title {
@@ -3110,12 +3122,11 @@ h1, h2, h3 {
     }
     
     /* Ajustar títulos no modo compacto (mobile) - MAIOR ESPECIFICIDADE */
+    /* Removido confirmation daqui para usar estilo específico abaixo */
     .story-section .story-title-wrapper.is-compact .section-title,
     .story-section .story-title-wrapper.is-compact .container .section-title,
     .ceremony-section .ceremony-title-wrapper.is-compact .section-title,
     .ceremony-section .ceremony-title-wrapper.is-compact .container .section-title,
-    .confirmation-section .confirmation-title-wrapper.is-compact .section-title,
-    .confirmation-section .confirmation-title-wrapper.is-compact .container .section-title,
     .gifts-section .gifts-title-wrapper.is-compact .section-title,
     .gifts-section .gifts-title-wrapper.is-compact .container .section-title {
         text-align: right !important;
@@ -3132,7 +3143,15 @@ h1, h2, h3 {
     /* Título compacto de confirmação no mobile - tamanho específico */
     .confirmation-section .confirmation-title-wrapper.is-compact .section-title,
     .confirmation-section .confirmation-title-wrapper.is-compact .container .section-title {
+        text-align: right !important;
         font-size: 1.25rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        padding-left: 0 !important;
+        margin: 0 !important;
     }
     
 

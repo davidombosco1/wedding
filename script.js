@@ -510,7 +510,22 @@ window.addEventListener('scroll', () => {
             if (element.classList.contains('gifts-title-wrapper') && parentSection) {
                 const parentRect = parentSection.getBoundingClientRect();
                 // O elemento está sticky se está na posição sticky E ainda está dentro da seção pai
-                isSticky = rect.top <= stickyTop && parentRect.bottom > stickyTop;
+                // No mobile, usar lógica mais estável para evitar problemas de cálculo e reflow
+                if (isMobileDevice) {
+                    // No mobile: usar margem maior e verificação mais estável
+                    // Uma vez que ficou sticky, manter sticky até sair completamente da seção
+                    const wasSticky = element.classList.contains('is-sticky');
+                    if (wasSticky) {
+                        // Se já estava sticky, só remover se saiu completamente da seção
+                        isSticky = parentRect.bottom > stickyTop && rect.top <= stickyTop + 10;
+                    } else {
+                        // Se não estava sticky, só adicionar se claramente passou do threshold
+                        isSticky = rect.top <= stickyTop && parentRect.bottom > stickyTop;
+                    }
+                } else {
+                    // Desktop: lógica original mais rigorosa
+                    isSticky = rect.top <= stickyTop && parentRect.bottom > stickyTop;
+                }
             }
             
             if (isSticky) {
@@ -530,28 +545,45 @@ window.addEventListener('scroll', () => {
                 const isCurrentlyCompact = compactStates.get(element) || false;
                 
                 if (isMobileDevice) {
-                    // MOBILE: Determinar estado baseado APENAS na posição (sem depender do estado atual)
+                    // MOBILE: Aplicar mudanças durante o scroll (não apenas quando para)
+                    // Usar histerese para evitar alternância quando está exatamente no threshold
                     const activateThreshold = 80; // Ativar compacto após scroll significativo
                     const deactivateThreshold = 10; // Só desativar quando muito próximo do topo
+                    const earlyActivateThreshold = 50; // Threshold menor para ativar quando ainda não está compacto
                     
-                    // Determinar estado desejado baseado APENAS na posição atual
-                    // Isso evita confusão entre estados
-                    let desiredState;
+                    // Zona intermediária: manter estado atual para evitar alternância
+                    // MAS: se não está compacto ainda e passou do threshold menor, ativar
+                    const isInIntermediateZone = scrollOffset >= deactivateThreshold && scrollOffset <= activateThreshold;
                     
-                    if (scrollOffset <= deactivateThreshold) {
-                        // No topo: SEMPRE versão completa
-                        desiredState = false;
-                    } else if (scrollOffset >= activateThreshold) {
-                        // Após threshold: SEMPRE versão compacta
-                        desiredState = true;
+                    if (!isInIntermediateZone) {
+                        // Fora da zona intermediária: aplicar mudanças imediatamente
+                        if (scrollOffset > activateThreshold) {
+                            // Claramente acima do threshold: ativar compacto
+                            if (!isCurrentlyCompact) {
+                                element.classList.add('is-compact');
+                                compactStates.set(element, true);
+                            }
+                        } else if (scrollOffset < deactivateThreshold) {
+                            // Claramente abaixo do threshold: desativar compacto
+                            if (isCurrentlyCompact) {
+                                element.classList.remove('is-compact');
+                                compactStates.set(element, false);
+                            }
+                        }
                     } else {
-                        // Zona intermediária (entre 10px e 80px): manter estado atual
-                        // Isso evita mudanças durante pequenos movimentos ou scroll lento
-                        desiredState = isCurrentlyCompact;
+                        // Na zona intermediária: lógica especial para evitar ficar preso
+                        if (!isCurrentlyCompact && scrollOffset >= earlyActivateThreshold) {
+                            // Se não está compacto ainda mas passou do threshold menor, ativar
+                            // Isso evita que fique preso na zona intermediária sem nunca ativar
+                            element.classList.add('is-compact');
+                            compactStates.set(element, true);
+                        } else if (isCurrentlyCompact && scrollOffset <= deactivateThreshold + 5) {
+                            // Se está compacto mas muito próximo do threshold de desativação, desativar
+                            element.classList.remove('is-compact');
+                            compactStates.set(element, false);
+                        }
+                        // Caso contrário, manter estado atual (evita alternância)
                     }
-                    
-                    // Armazenar estado desejado (não aplicar ainda)
-                    pendingStates.set(element, desiredState);
                 } else {
                     // DESKTOP: Transição imediata e suave com thresholds menores
                     // Usar histerese robusta para evitar alternância quando está exatamente no threshold
@@ -652,20 +684,12 @@ window.addEventListener('scroll', () => {
         const scrollDelta = Math.abs(currentScrollY - lastScrollY);
         const currentTime = Date.now();
         
-        // No mobile, cancelar timeout anterior e criar novo (debounce)
+        // MOBILE: Verificação durante o scroll (não apenas quando para)
+        // Usar throttle leve para performance, mas aplicar mudanças imediatamente
         if (isMobileDevice) {
-            if (scrollEndTimeout) {
-                clearTimeout(scrollEndTimeout);
-            }
-            // Aplicar estados pendentes quando scroll parar (200ms sem scroll)
-            scrollEndTimeout = setTimeout(() => {
-                applyPendingStates();
-                scrollEndTimeout = null;
-            }, 200);
-            
-            // No mobile, verificar menos frequentemente e com throttle de tempo
-            const minScrollDelta = 10; // Mínimo de pixels scrollados antes de verificar
-            const minTimeDelta = 50; // Mínimo de ms entre verificações (mobile: 50ms = ~20fps)
+            // Throttle mais leve para mobile - verificar mais frequentemente
+            const minScrollDelta = 5; // Reduzido para ser mais responsivo
+            const minTimeDelta = 30; // Reduzido para ~33fps (mais suave)
             
             if (!ticking && scrollDelta >= minScrollDelta && (currentTime - lastCheckTime) >= minTimeDelta) {
                 window.requestAnimationFrame(() => {
