@@ -55,7 +55,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 
 // Contagem regressiva
 function updateCountdown() {
-    // Data da cerimônia: 31 de Maio de 2026, 11:00
+    // Data da cerimônia: 31 de maio de 2026, 11:00
     const weddingDate = new Date('2026-05-31T11:00:00');
     const now = new Date();
     
@@ -523,7 +523,8 @@ window.addEventListener('scroll', () => {
                 
                 // Calcular quanto o usuário scrollou desde que o cabeçalho ficou sticky
                 const startPoint = stickyStartPoints.get(element);
-                const scrollOffset = scrollTop - startPoint;
+                // Arredondar para evitar oscilações por pequenas variações de pixel
+                const scrollOffset = Math.round(scrollTop - startPoint);
                 
                 // Usar detecção de mobile global (mais robusta)
                 const isCurrentlyCompact = compactStates.get(element) || false;
@@ -552,21 +553,33 @@ window.addEventListener('scroll', () => {
                     // Armazenar estado desejado (não aplicar ainda)
                     pendingStates.set(element, desiredState);
                 } else {
-                    // DESKTOP: Lógica normal com thresholds menores
-                    const activateThreshold = 50;
-                    const deactivateThreshold = 20;
+                    // DESKTOP: Transição imediata e suave com thresholds menores
+                    // Usar histerese robusta para evitar alternância quando está exatamente no threshold
+                    const activateThreshold = 60;  // Aumentado para ter mais margem
+                    const deactivateThreshold = 15; // Reduzido para ter mais margem
                     
-                    if (isCurrentlyCompact) {
-                        if (scrollOffset < deactivateThreshold) {
-                            element.classList.remove('is-compact');
-                            compactStates.set(element, false);
-                        }
-                    } else {
+                    // Zona intermediária: SEMPRE manter estado atual (nunca alterar)
+                    // Isso evita qualquer alternância quando o scroll está pausado na zona intermediária
+                    const isInIntermediateZone = scrollOffset >= deactivateThreshold && scrollOffset <= activateThreshold;
+                    
+                    if (!isInIntermediateZone) {
+                        // Fora da zona intermediária: aplicar mudanças baseado na posição
                         if (scrollOffset > activateThreshold) {
-                            element.classList.add('is-compact');
-                            compactStates.set(element, true);
+                            // Claramente acima do threshold: ativar compacto
+                            if (!isCurrentlyCompact) {
+                                element.classList.add('is-compact');
+                                compactStates.set(element, true);
+                            }
+                        } else if (scrollOffset < deactivateThreshold) {
+                            // Claramente abaixo do threshold: desativar compacto
+                            if (isCurrentlyCompact) {
+                                element.classList.remove('is-compact');
+                                compactStates.set(element, false);
+                            }
                         }
                     }
+                    // Se está na zona intermediária, não fazer nada (manter estado atual)
+                    // Isso previne alternância mesmo com pequenas variações no scrollOffset
                 }
             } else {
                 element.classList.remove('is-sticky');
@@ -649,20 +662,32 @@ window.addEventListener('scroll', () => {
                 applyPendingStates();
                 scrollEndTimeout = null;
             }, 200);
-        }
-        
-        // No mobile, verificar menos frequentemente e com throttle de tempo
-        const minScrollDelta = isMobileDevice ? 10 : 1; // Mínimo de pixels scrollados antes de verificar
-        const minTimeDelta = isMobileDevice ? 50 : 16; // Mínimo de ms entre verificações (mobile: 50ms = ~20fps, desktop: 16ms = ~60fps)
-        
-        if (!ticking && scrollDelta >= minScrollDelta && (currentTime - lastCheckTime) >= minTimeDelta) {
-            window.requestAnimationFrame(() => {
-                checkSticky();
-                lastScrollY = currentScrollY;
-                lastCheckTime = Date.now();
-                ticking = false;
-            });
-            ticking = true;
+            
+            // No mobile, verificar menos frequentemente e com throttle de tempo
+            const minScrollDelta = 10; // Mínimo de pixels scrollados antes de verificar
+            const minTimeDelta = 50; // Mínimo de ms entre verificações (mobile: 50ms = ~20fps)
+            
+            if (!ticking && scrollDelta >= minScrollDelta && (currentTime - lastCheckTime) >= minTimeDelta) {
+                window.requestAnimationFrame(() => {
+                    checkSticky();
+                    lastScrollY = currentScrollY;
+                    lastCheckTime = Date.now();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        } else {
+            // DESKTOP: Verificação imediata e suave usando requestAnimationFrame
+            // Sem throttle agressivo para transição imediata
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    checkSticky();
+                    lastScrollY = currentScrollY;
+                    lastCheckTime = Date.now();
+                    ticking = false;
+                });
+                ticking = true;
+            }
         }
     }, { passive: true });
     

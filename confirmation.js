@@ -4,7 +4,7 @@
 let supabaseClient;
 let currentGuestData = null;
 
-// Data do casamento: 31 de Maio de 2026, 11:00
+// Data do casamento: 31 de maio de 2026, 11:00
 const WEDDING_DATE = new Date('2026-05-31T11:00:00');
 
 // Verificar se pode desfazer confirmação (baseado na data confirmation_deadline)

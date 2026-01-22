@@ -883,7 +883,7 @@ h1, h2, h3 {
     box-shadow: none;
     margin-bottom: 3rem;
     transition: opacity 0.3s ease, padding 0.4s ease, height 0.4s ease, background 0.4s ease, backdrop-filter 0.4s ease, box-shadow 0.4s ease;
-    padding: 2rem 0 1rem 0;
+    padding: 1rem 0 1rem 0;
     transform: translateZ(0);
     will-change: padding, height, background, opacity;
     backface-visibility: hidden;
@@ -937,11 +937,19 @@ h1, h2, h3 {
 }
 
 @media (max-width: 768px) {
+    /* Título original (não compacto) no mobile */
+    .confirmation-title-wrapper .section-title,
+    .confirmation-section .confirmation-title-wrapper .section-title,
+    .confirmation-section .confirmation-title-wrapper .container .section-title {
+        font-size: 1.4rem !important;
+    }
+    
+    /* Título compacto no mobile */
     .confirmation-title-wrapper.is-compact .section-title,
     .confirmation-section .confirmation-title-wrapper.is-compact .section-title,
     .confirmation-section .confirmation-title-wrapper.is-compact .container .section-title {
         text-align: right !important;
-        font-size: 1.3rem !important;
+        font-size: 1.25rem !important;
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
@@ -1658,6 +1666,164 @@ h1, h2, h3 {
     background: #c82333;
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+}
+
+/* Estilos Mobile para Confirmation Screen */
+@media (max-width: 768px) {
+    .confirmation-section .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .confirmation-screen {
+        max-width: 100%;
+        padding: 0;
+        margin: 0 auto;
+    }
+    
+    .guest-info-card {
+        padding: 1.5rem 1rem;
+        margin-bottom: 1.5rem;
+        gap: 1rem;
+    }
+    
+    .guest-info-card.has-photo {
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+    }
+    
+    .guest-info-card.has-photo h3,
+    .guest-info-card.has-photo .guest-code-display {
+        text-align: center;
+    }
+    
+    .guest-photo-container {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .guest-info-card.has-photo .guest-photo-container {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .guest-photo-polaroid {
+        width: 160px;
+        padding: 10px 10px 45px 10px;
+    }
+    
+    .guest-photo-polaroid-img {
+        height: 180px;
+    }
+    
+    .guest-info-card h3 {
+        font-size: 1.5rem;
+    }
+    
+    .guest-info-card-content {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .guest-checkbox-label {
+        min-width: auto;
+        flex: 1 1 100%;
+    }
+    
+    .guest-checkbox-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .confirmation-screen .shoe-size-select-inline {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+    
+    .confirmed-info {
+        padding: 1rem;
+        margin-top: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .confirmed-people-list {
+        padding: 0.75rem;
+    }
+    
+    .confirmation-form {
+        padding: 1.5rem 1rem;
+    }
+    
+    .guests-list {
+        margin-bottom: 1.5rem;
+    }
+    
+    .guests-list h4 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .confirmation-message {
+        max-width: 100%;
+        margin: 1.5rem auto 0;
+        padding: 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .confirmation-section .section-subtitle {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+        padding: 0 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .confirmation-section .container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+    
+    .confirmation-screen {
+        padding: 0;
+    }
+    
+    .guest-info-card {
+        padding: 1rem 0.75rem;
+    }
+    
+    .guest-photo-polaroid {
+        width: 140px;
+        padding: 8px 8px 40px 8px;
+    }
+    
+    .guest-photo-polaroid-img {
+        height: 160px;
+    }
+    
+    .guest-info-card h3 {
+        font-size: 1.3rem;
+    }
+    
+    .confirmation-form {
+        padding: 1rem 0.75rem;
+    }
+    
+    .guest-checkbox-item {
+        padding: 0.75rem;
+    }
+    
+    .confirmation-message {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+    }
+    
+    .confirmation-section .section-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        padding: 0 0.5rem;
+    }
 }
 
 /* Modal de Agradecimento */
@@ -2937,6 +3103,12 @@ h1, h2, h3 {
         padding-right: 2rem !important;
     }
     
+    /* Título original (não compacto) de confirmação no mobile */
+    .confirmation-section .confirmation-title-wrapper .section-title,
+    .confirmation-section .confirmation-title-wrapper .container .section-title {
+        font-size: 1.4rem !important;
+    }
+    
     /* Ajustar títulos no modo compacto (mobile) - MAIOR ESPECIFICIDADE */
     .story-section .story-title-wrapper.is-compact .section-title,
     .story-section .story-title-wrapper.is-compact .container .section-title,
@@ -2955,6 +3127,12 @@ h1, h2, h3 {
         padding-bottom: 0 !important;
         padding-left: 0 !important;
         margin: 0 !important;
+    }
+    
+    /* Título compacto de confirmação no mobile - tamanho específico */
+    .confirmation-section .confirmation-title-wrapper.is-compact .section-title,
+    .confirmation-section .confirmation-title-wrapper.is-compact .container .section-title {
+        font-size: 1.25rem !important;
     }
     
 
