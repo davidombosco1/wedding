@@ -507,25 +507,23 @@ window.addEventListener('scroll', () => {
             const parentSection = element.closest('section');
             let isSticky = rect.top <= stickyTop;
             
-            if (element.classList.contains('gifts-title-wrapper') && parentSection) {
+            // No mobile, aplicar lógica estável para TODAS as seções para evitar histerese/tilt
+            if (isMobileDevice && parentSection) {
                 const parentRect = parentSection.getBoundingClientRect();
-                // O elemento está sticky se está na posição sticky E ainda está dentro da seção pai
-                // No mobile, usar lógica mais estável para evitar problemas de cálculo e reflow
-                if (isMobileDevice) {
-                    // No mobile: usar margem maior e verificação mais estável
-                    // Uma vez que ficou sticky, manter sticky até sair completamente da seção
-                    const wasSticky = element.classList.contains('is-sticky');
-                    if (wasSticky) {
-                        // Se já estava sticky, só remover se saiu completamente da seção
-                        isSticky = parentRect.bottom > stickyTop && rect.top <= stickyTop + 10;
-                    } else {
-                        // Se não estava sticky, só adicionar se claramente passou do threshold
-                        isSticky = rect.top <= stickyTop && parentRect.bottom > stickyTop;
-                    }
+                const wasSticky = element.classList.contains('is-sticky');
+                
+                // Lógica estável: uma vez que ficou sticky, manter sticky até sair completamente
+                if (wasSticky) {
+                    // Se já estava sticky, só remover se saiu completamente da seção (com margem)
+                    isSticky = parentRect.bottom > stickyTop && rect.top <= stickyTop + 10;
                 } else {
-                    // Desktop: lógica original mais rigorosa
+                    // Se não estava sticky, só adicionar se claramente passou do threshold
                     isSticky = rect.top <= stickyTop && parentRect.bottom > stickyTop;
                 }
+            } else if (element.classList.contains('gifts-title-wrapper') && parentSection) {
+                // Desktop: lógica original mais rigorosa para gifts
+                const parentRect = parentSection.getBoundingClientRect();
+                isSticky = rect.top <= stickyTop && parentRect.bottom > stickyTop;
             }
             
             if (isSticky) {
