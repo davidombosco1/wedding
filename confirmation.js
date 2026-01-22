@@ -20,16 +20,36 @@ function canUndoConfirmation() {
 }
 
 // Formatar data de deadline para exibição
+// Usa exatamente a data que consta em confirmation_deadline, sem conversões
 function formatDeadlineDate() {
     if (!currentGuestData || !currentGuestData.confirmation_deadline) {
         return null;
     }
-    const deadline = new Date(currentGuestData.confirmation_deadline);
-    return deadline.toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
+    
+    const deadlineStr = currentGuestData.confirmation_deadline;
+    
+    // Se é string no formato ISO (YYYY-MM-DD ou YYYY-MM-DDTHH:mm:ss)
+    if (typeof deadlineStr === 'string') {
+        // Extrair apenas a parte da data (antes do T ou espaço)
+        const dateOnly = deadlineStr.split('T')[0].split(' ')[0];
+        const [year, month, day] = dateOnly.split('-');
+        
+        // Retornar no formato brasileiro (DD/MM/YYYY) usando exatamente os valores da string
+        return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
+    }
+    
+    // Se não for string, tentar converter (fallback)
+    const deadline = new Date(deadlineStr);
+    if (isNaN(deadline.getTime())) {
+        return null;
+    }
+    
+    // Extrair componentes da data sem conversão de timezone
+    const year = deadline.getFullYear();
+    const month = String(deadline.getMonth() + 1).padStart(2, '0');
+    const day = String(deadline.getDate()).padStart(2, '0');
+    
+    return `${day}/${month}/${year}`;
 }
 
 // Converter data UTC para UTC-3 (horário de Brasília)
@@ -336,8 +356,13 @@ function displayConfirmationScreen() {
         } else {
             const confirmationInfo = document.createElement('div');
             confirmationInfo.className = 'guest-confirmation-summary';
+            
+            // Adicionar informação de deadline se disponível
+            const deadlineDate = formatDeadlineDate();
+            const deadlineText = deadlineDate ? `<br>Você pode confirmar até ${deadlineDate}.` : '';
+            
             confirmationInfo.innerHTML = `
-                <p class="guest-confirmation-date">Não confirmado</p>
+                <p class="guest-confirmation-date">Não confirmado${deadlineText}</p>
             `;
             contentWrapper.appendChild(confirmationInfo);
         }

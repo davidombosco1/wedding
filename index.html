@@ -355,24 +355,8 @@
 
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        (function() {
-            // Configuração do Supabase
-            // IMPORTANTE: Substitua pelos seus dados do Supabase
-            const SUPABASE_URL = 'https://cevzvsfzlknqdtpmlckv.supabase.co';
-            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNldnp2c2Z6bGtucWR0cG1sY2t2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY0NDk4MzcsImV4cCI6MjA4MjAyNTgzN30.y3qOxEo5M7bHV279Dw1ueCsSXMfECPXqSexWSWuZSZ8';
-            
-            // Inicializar Supabase e exportar para uso global
-            // Usar window.supabase se disponível, senão usar createClient diretamente
-            if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-                window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            } else if (typeof supabase !== 'undefined' && supabase.createClient) {
-                window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            } else {
-                console.error('Supabase SDK não carregado corretamente');
-            }
-        })();
-    </script>
+    <!-- Configuração do Supabase (credenciais movidas para config.js) -->
+    <script src="config.js"></script>
     <script src="script.js"></script>
     <script src="confirmation.js"></script>
     <script src="gifts.js"></script>
