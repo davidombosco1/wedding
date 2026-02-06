@@ -925,7 +925,7 @@ h1, h2, h3 {
     border-bottom: none !important; /* Remover borda inferior do header */
     border-radius: 10px 10px 0 0; /* Arredondar apenas o topo */
     margin-bottom: 0 !important; /* Sem margem - forçar remoção */
-    padding-bottom: 0 !important; /* Remover padding inferior para grudar ao conteúdo */
+    padding-bottom: 1rem !important; /* Adicionar espaçamento após o texto */
 }
 
 .accommodations-card.is-expanded .accommodations-content {
