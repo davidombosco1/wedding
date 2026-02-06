@@ -295,6 +295,14 @@ function displayConfirmationScreen() {
             
             // Verificar se a imagem carrega corretamente
             photoImg.onload = () => {
+                // Detectar orientação da imagem e ajustar polaroide
+                const isLandscape = photoImg.naturalWidth > photoImg.naturalHeight;
+                if (isLandscape) {
+                    photoDiv.classList.add('polaroid-landscape');
+                } else {
+                    photoDiv.classList.add('polaroid-portrait');
+                }
+                
                 // Se carregar, mostrar e adicionar classe has-photo
                 photoContainer.style.display = 'flex';
                 guestInfoCard.classList.add('has-photo');
@@ -1090,6 +1098,14 @@ function showThankYouModal(confirmedGuests) {
                 
                 // Verificar se a imagem carrega corretamente
                 photoImg.onload = () => {
+                    // Detectar orientação da imagem e ajustar polaroide
+                    const isLandscape = photoImg.naturalWidth > photoImg.naturalHeight;
+                    if (isLandscape) {
+                        photoDiv.classList.add('polaroid-landscape');
+                    } else {
+                        photoDiv.classList.add('polaroid-portrait');
+                    }
+                    
                     // Se carregar, mostrar e adicionar classe has-photo
                     photoContainer.style.display = 'flex';
                     guestInfoCard.classList.add('has-photo');
@@ -1161,7 +1177,18 @@ function showThankYouModal(confirmedGuests) {
         
         // Verificar se a imagem carrega corretamente
         photoImg.onload = () => {
-        photoImg.style.display = 'block';
+            // Detectar orientação da imagem e ajustar polaroide
+            const photoDiv = thankYouModal.querySelector('.thank-you-photo');
+            if (photoDiv) {
+                const isLandscape = photoImg.naturalWidth > photoImg.naturalHeight;
+                if (isLandscape) {
+                    photoDiv.classList.add('polaroid-landscape');
+                } else {
+                    photoDiv.classList.add('polaroid-portrait');
+                }
+            }
+            
+            photoImg.style.display = 'block';
             photoContainer.style.display = 'flex';
         };
         

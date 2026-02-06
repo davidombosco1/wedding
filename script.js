@@ -730,3 +730,29 @@ window.addEventListener('scroll', () => {
     checkSticky();
 })();
 
+// Controle de expansão/colapso da seção de hospedagens
+(function() {
+    const accommodationsToggle = document.getElementById('accommodations-toggle');
+    const accommodationsToggleMobile = document.getElementById('accommodations-toggle-mobile');
+    const accommodationsCard = document.querySelector('.accommodations-card');
+    const ceremonyNoteWrapper = document.querySelector('.ceremony-note-wrapper');
+    
+    const toggleCard = () => {
+        if (accommodationsCard) {
+            accommodationsCard.classList.toggle('is-expanded');
+            // Adicionar classe ao wrapper para controlar a seta no header
+            if (ceremonyNoteWrapper) {
+                ceremonyNoteWrapper.classList.toggle('has-expanded');
+            }
+        }
+    };
+    
+    if (accommodationsToggle) {
+        accommodationsToggle.addEventListener('click', toggleCard);
+    }
+    
+    if (accommodationsToggleMobile) {
+        accommodationsToggleMobile.addEventListener('click', toggleCard);
+    }
+})();
+

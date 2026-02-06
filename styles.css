@@ -830,11 +830,207 @@ h1, h2, h3 {
     font-weight: 600;
 }
 
-.ceremony-note {
+/* Seção de Hospedagens Colapsável */
+/* Header na mesma row do ceremony-note */
+.accommodations-header {
+    background: transparent;
+    border: 1px solid #E7E6B1;
+    border-radius: 10px;
+    padding: 1.5rem 2rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s ease, border-radius 0.3s ease, border-bottom 0.3s ease, margin-bottom 0.3s ease;
+    user-select: none;
+    text-align: center;
+    margin-bottom: 0; /* Sem margem inferior para grudar ao conteúdo */
+}
+
+.accommodations-header:hover {
+    background-color: rgba(231, 230, 177, 0.1);
+}
+
+.accommodations-header h3 {
+    color: rgb(74, 66, 56);
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+    flex: 1;
+}
+
+.accommodations-header h3 i {
+    font-size: 1.1rem;
+}
+
+/* Card completo quando expandido (row completa abaixo) */
+.accommodations-card {
     grid-column: 1 / -1;
     background: transparent;
-    padding: 1.5rem 0;
+    border: 1px solid #E7E6B1;
+    border-radius: 10px;
+    overflow: visible; /* Mudar para visible para permitir conexão visual */
+    transition: all 0.3s ease;
+    display: none;
+    padding: 0 !important; /* Garantir sem padding */
+    margin: 0; /* Garantir sem margin inicial */
+}
+
+.accommodations-card.is-expanded {
+    display: block;
+}
+
+
+.accommodations-chevron {
+    color: rgb(74, 66, 56);
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+    transform: rotate(0deg); /* Desktop: seta para baixo quando colapsado (expansão de cima para baixo) */
+}
+
+/* Desktop: seta para cima quando expandido */
+.ceremony-note-wrapper.has-expanded .accommodations-chevron {
+    transform: rotate(180deg);
+}
+
+.accommodations-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.4s ease;
+    padding: 0;
+}
+
+/* Desktop: conteúdo quando expandido - grudado diretamente ao header */
+.accommodations-card.is-expanded {
+    margin-top: -2rem !important; /* Compensar gap do grid (2rem) - forçar */
+    border-top: none !important; /* Remover borda superior para conexão direta */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Sombra sutil */
+    border-radius: 0 !important; /* Remover border-radius superior */
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+}
+
+/* Desktop: header quando card está expandido - conectar visualmente */
+.ceremony-note-wrapper.has-expanded {
+    margin-bottom: 0; /* Remover margem inferior do wrapper */
+    padding-bottom: 0; /* Remover padding inferior */
+    align-items: end; /* Alinhar header ao limite inferior */
+}
+
+.ceremony-note-wrapper.has-expanded .accommodations-header {
+    border-bottom: none !important; /* Remover borda inferior do header */
+    border-radius: 10px 10px 0 0; /* Arredondar apenas o topo */
+    margin-bottom: 0 !important; /* Sem margem - forçar remoção */
+    padding-bottom: 0 !important; /* Remover padding inferior para grudar ao conteúdo */
+}
+
+.accommodations-card.is-expanded .accommodations-content {
+    max-height: 2000px;
+    padding: 2rem;
+    background: #FFFFFF;
+    border-top: 2px solid var(--olive-muted); /* Linha verde claro conectando header ao conteúdo */
+    border-radius: 0 0 10px 10px; /* Arredondar apenas a parte inferior */
+    margin-top: 0 !important; /* Sem margem superior no conteúdo - forçar */
+    padding-top: 2rem; /* Manter padding superior do conteúdo */
+}
+
+/* Desktop: esconder header mobile */
+.accommodations-card .accommodations-header-mobile {
+    display: none;
+}
+
+.accommodations-intro {
+    color: var(--text-light);
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    text-align: center;
+    padding-top: 1rem;
+}
+
+.accommodations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.accommodation-item {
+    padding: 1.5rem;
+    background: rgba(231, 230, 177, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(231, 230, 177, 0.3);
+}
+
+.accommodation-item h4 {
+    color: rgb(74, 66, 56);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+
+.accommodation-address,
+.accommodation-phone {
+    color: var(--text-light);
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    text-align: left;
+}
+
+.accommodation-address i,
+.accommodation-phone i {
+    color: rgb(74, 66, 56);
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+}
+
+.accommodation-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--moss-deep);
+    text-decoration: none;
+    font-weight: 500;
+    margin-top: 0.75rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--olive-muted);
+    background-color: var(--olive-muted);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    width: 100%;
+    justify-content: center;
+}
+
+.accommodation-link:hover {
+    background-color: var(--moss-deep);
+    color: #FFFFFF;
+    border-color: var(--moss-deep);
+    transform: translateY(-1px);
+}
+
+.accommodation-link i {
+    font-size: 0.9rem;
+}
+
+.ceremony-note-wrapper {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    align-items: center; /* Centralizar verticalmente */
     margin-top: 0.5rem;
+}
+
+.ceremony-note {
+    background: transparent;
+    padding: 1.5rem 0 0 0; /* Remover padding bottom */
+    margin-bottom: 0; /* Remover margin bottom */
 }
 
 .ceremony-note p {
@@ -842,7 +1038,7 @@ h1, h2, h3 {
     font-size: 1.1rem;
     line-height: 1.6;
     margin: 0;
-    text-align: center;
+    text-align: left; /* Alinhado à esquerda na versão web */
 }
 
 .map-container {
@@ -853,14 +1049,14 @@ h1, h2, h3 {
     border: 1px solid #E7E6B1;
     padding: 0.5rem;
     display: flex;
-    align-items: stretch; /* Garantir que o mapa ocupe toda a altura */
-    height: 100%; /* Garantir que o container ocupe toda a altura da coluna */
+    align-items: stretch;
+    height: 100%;
 }
 
 .map-container iframe {
     width: 100%;
-    height: 100%; /* Usar 100% da altura do container */
-    min-height: 550px; /* Aumentar altura mínima do mapa */
+    height: 100%;
+    min-height: 550px;
     border: 0;
     border-radius: 8px;
     display: block;
@@ -1394,9 +1590,30 @@ h1, h2, h3 {
     overflow: hidden;
 }
 
-.guest-photo-polaroid-img {
+/* Polaroide vertical (portrait) - padrão */
+.guest-photo-polaroid.polaroid-portrait {
+    width: 200px;
+    padding: 12px 12px 55px 12px;
+}
+
+.guest-photo-polaroid.polaroid-portrait .guest-photo-polaroid-img {
     width: 100%;
     height: 230px;
+}
+
+/* Polaroide horizontal (landscape) - para fotos horizontais */
+.guest-photo-polaroid.polaroid-landscape {
+    width: 280px; /* Mais larga para fotos horizontais */
+    padding: 12px 55px 12px 12px; /* Padding na parte inferior (lado direito quando deitada) */
+    transform: rotate(2deg); /* Rotação oposta para variar */
+}
+
+.guest-photo-polaroid.polaroid-landscape .guest-photo-polaroid-img {
+    width: 100%;
+    height: 180px; /* Altura menor para manter proporção */
+}
+
+.guest-photo-polaroid-img {
     object-fit: cover;
     object-position: center;
     border-radius: 2px;
@@ -1753,8 +1970,28 @@ h1, h2, h3 {
         padding: 10px 10px 45px 10px;
     }
     
-    .guest-photo-polaroid-img {
+    /* Polaroide vertical no mobile */
+    .guest-photo-polaroid.polaroid-portrait {
+        width: 160px;
+        padding: 10px 10px 45px 10px;
+    }
+    
+    .guest-photo-polaroid.polaroid-portrait .guest-photo-polaroid-img {
         height: 180px;
+    }
+    
+    /* Polaroide horizontal no mobile */
+    .guest-photo-polaroid.polaroid-landscape {
+        width: 220px; /* Mais larga no mobile também */
+        padding: 10px 45px 10px 10px;
+    }
+    
+    .guest-photo-polaroid.polaroid-landscape .guest-photo-polaroid-img {
+        height: 140px;
+    }
+    
+    .guest-photo-polaroid-img {
+        width: 100%;
     }
     
     .guest-info-card h3 {
@@ -1838,8 +2075,28 @@ h1, h2, h3 {
         padding: 8px 8px 40px 8px;
     }
     
-    .guest-photo-polaroid-img {
+    /* Polaroide vertical em telas pequenas */
+    .guest-photo-polaroid.polaroid-portrait {
+        width: 140px;
+        padding: 8px 8px 40px 8px;
+    }
+    
+    .guest-photo-polaroid.polaroid-portrait .guest-photo-polaroid-img {
         height: 160px;
+    }
+    
+    /* Polaroide horizontal em telas pequenas */
+    .guest-photo-polaroid.polaroid-landscape {
+        width: 190px;
+        padding: 8px 40px 8px 8px;
+    }
+    
+    .guest-photo-polaroid.polaroid-landscape .guest-photo-polaroid-img {
+        height: 120px;
+    }
+    
+    .guest-photo-polaroid-img {
+        width: 100%;
     }
     
     .guest-info-card h3 {
@@ -1953,16 +2210,41 @@ h1, h2, h3 {
     overflow: hidden;
 }
 
+/* Polaroide vertical no modal de agradecimento */
+.thank-you-photo.polaroid-portrait {
+    width: 200px;
+    padding: 10px 10px 50px 10px;
+}
+
+.thank-you-photo.polaroid-portrait img {
+    height: 220px;
+}
+
+/* Polaroide horizontal no modal de agradecimento */
+.thank-you-photo.polaroid-landscape {
+    width: 280px;
+    padding: 10px 50px 10px 10px;
+    transform: rotate(2deg);
+}
+
+.thank-you-photo.polaroid-landscape img {
+    height: 180px;
+}
+
 .thank-you-photo::before {
     content: '❤️';
     position: absolute;
-    bottom: -5px;
-    left: 50%;
-    transform: translateX(-50%);
     font-size: 2rem;
     z-index: 10;
     filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
     animation: float 2s ease-in-out infinite;
+}
+
+/* Coração para polaroide vertical (portrait) - na parte inferior */
+.thank-you-photo.polaroid-portrait::before {
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 @keyframes float {
@@ -1974,9 +2256,25 @@ h1, h2, h3 {
     }
 }
 
+/* Coração para polaroide horizontal (landscape) - na parte branca, centralizado verticalmente */
+.thank-you-photo.polaroid-landscape::before {
+    right: 10px; /* Na parte branca (padding direito) */
+    top: 50%;
+    transform: translateY(-50%);
+    animation: float-horizontal 2s ease-in-out infinite;
+}
+
+@keyframes float-horizontal {
+    0%, 100% {
+        transform: translateY(-50%) translateX(0);
+    }
+    50% {
+        transform: translateY(-50%) translateX(3px);
+    }
+}
+
 .thank-you-photo img {
     width: 100%;
-    height: 220px;
     object-fit: cover;
     object-position: center;
     border-radius: 2px;
@@ -2080,11 +2378,29 @@ h1, h2, h3 {
         position: relative;
     }
     
+    /* Polaroide vertical no modal mobile */
+    .thank-you-photo.polaroid-portrait {
+        width: 160px;
+        padding: 8px 8px 40px 8px;
+    }
+    
+    .thank-you-photo.polaroid-portrait img {
+        height: 180px;
+    }
+    
+    /* Polaroide horizontal no modal mobile */
+    .thank-you-photo.polaroid-landscape {
+        width: 220px;
+        padding: 8px 40px 8px 8px;
+    }
+    
+    .thank-you-photo.polaroid-landscape img {
+        height: 140px;
+    }
+    
     .thank-you-photo img {
         width: 100%;
         max-width: 100%;
-        height: 180px;
-        max-height: 180px;
         object-fit: cover;
         object-position: center;
         box-sizing: border-box;
@@ -3265,8 +3581,75 @@ h1, h2, h3 {
         padding: 0 1rem;
     }
     
+    /* Mobile: reordenar elementos - accommodations-card antes de ceremony-note-wrapper */
+    .map-container {
+        order: 3;
+    }
+    
+    .ceremony-note-wrapper {
+        order: 5; /* Aparecer depois do accommodations-card */
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .accommodations-card {
+        order: 4; /* Aparecer antes do ceremony-note-wrapper */
+        display: flex;
+        flex-direction: column;
+        margin-top: 0;
+        border: 1px solid #E7E6B1;
+        border-radius: 10px;
+    }
+    
+    .accommodations-card .accommodations-header-mobile {
+        order: -1; /* Header mobile aparece primeiro dentro do card */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #E7E6B1;
+        cursor: pointer;
+        user-select: none;
+        background: transparent;
+        transition: background-color 0.2s ease;
+        margin-bottom: 0;
+        border-radius: 10px 10px 0 0;
+        position: relative;
+        z-index: 1;
+    }
+    
     .ceremony-note {
         padding: 1.2rem 1.5rem;
+    }
+    
+    /* Mobile: esconder header da row */
+    .ceremony-note-wrapper .accommodations-header {
+        display: none;
+    }
+    
+    .accommodations-card .accommodations-header-mobile:hover {
+        background-color: rgba(231, 230, 177, 0.1);
+    }
+    
+    .accommodations-card .accommodations-header-mobile h3 {
+        color: rgb(74, 66, 56);
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .accommodations-card .accommodations-header-mobile .accommodations-chevron {
+        color: rgb(74, 66, 56);
+        font-size: 1rem;
+        transition: transform 0.3s ease;
+        transform: rotate(0deg);
+    }
+    
+    .accommodations-card.is-expanded .accommodations-header-mobile .accommodations-chevron {
+        transform: rotate(180deg);
     }
     
     .ceremony-section .section-title {
@@ -3275,6 +3658,69 @@ h1, h2, h3 {
     
     .ceremony-info {
         flex-direction: column;
+    }
+
+    /* Ajustes mobile para seção de hospedagens */
+    .accommodations-header {
+        padding: 1.25rem 1.5rem;
+    }
+
+    .accommodations-header h3 {
+        font-size: 1.2rem;
+    }
+
+    .accommodations-content {
+        padding: 0 1.5rem;
+    }
+
+    .accommodations-card.is-expanded .accommodations-content {
+        padding: 0 1.5rem 1.5rem 1.5rem;
+    }
+
+    .accommodation-item {
+        padding: 1.25rem;
+    }
+
+    .accommodation-item h4 {
+        font-size: 1.1rem;
+    }
+
+    .accommodation-address,
+    .accommodation-phone {
+        font-size: 0.9rem;
+    }
+
+    /* Mobile: expandir naturalmente para baixo, sem sobrepor conteúdo seguinte */
+    .accommodations-card.is-expanded {
+        position: relative;
+        top: auto;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        max-height: none;
+    }
+
+    /* Mobile: header não precisa ser sticky */
+    .accommodations-card.is-expanded .accommodations-header {
+        position: relative;
+        top: auto;
+        box-shadow: none;
+        border-bottom: 1px solid rgba(231, 230, 177, 0.3);
+    }
+
+    /* Mobile: conteúdo expande naturalmente */
+    .accommodations-card.is-expanded .accommodations-content {
+        max-height: none;
+        overflow-y: visible;
+    }
+
+    /* Mobile: manter seta padrão (para baixo quando colapsado, para cima quando expandido) */
+    .accommodations-chevron {
+        transform: rotate(0deg); /* Mobile: seta para baixo quando colapsado */
+    }
+
+    .accommodations-card.is-expanded .accommodations-chevron {
+        transform: rotate(180deg); /* Mobile: seta para cima quando expandido */
     }
 
     .confirmation-form {
