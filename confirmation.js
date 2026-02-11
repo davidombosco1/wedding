@@ -149,11 +149,21 @@ async function searchGuestByCode() {
             const canUndo = canUndoConfirmation();
             if (!canUndo) {
                 const deadlineDate = formatDeadlineDate();
-                const deadlineText = deadlineDate ? ` até ${deadlineDate}` : '';
+                const deadlineText = deadlineDate ? ` em ${deadlineDate}` : '';
                 showCodeError(`Este convite já foi confirmado. O prazo para desfazer a confirmação expirou${deadlineText}.`);
                 return;
             }
             // Se pode desfazer, mostrar tela de confirmação com opção de desfazer
+        } else {
+            // Não confirmou ainda: verificar se o prazo para confirmar expirou
+            if (data.confirmation_deadline) {
+                const now = new Date();
+                const deadline = new Date(data.confirmation_deadline);
+                if (now > deadline) {
+                    showCodeError('Infelizmente, o prazo para confirmação de presença já expirou :(');
+                    return;
+                }
+            }
         }
 
         // Mostrar tela de confirmação
@@ -670,9 +680,19 @@ async function confirmPresence(event) {
     
     if (isConfirmed && !canUndo) {
         const deadlineDate = formatDeadlineDate();
-        const deadlineText = deadlineDate ? ` até ${deadlineDate}` : '';
+        const deadlineText = deadlineDate ? ` em ${deadlineDate}` : '';
         showErrorModal(`Você já confirmou sua presença e o prazo para editar expirou${deadlineText}.`);
         return;
+    }
+
+    // Quem ainda não confirmou: bloquear se o prazo expirou
+    if (!isConfirmed && currentGuestData.confirmation_deadline) {
+        const now = new Date();
+        const deadline = new Date(currentGuestData.confirmation_deadline);
+        if (now > deadline) {
+            showErrorModal('Infelizmente, o prazo para confirmação de presença já expirou :(');
+            return;
+        }
     }
 
     // Desabilitar botão para evitar múltiplos cliques
@@ -1002,7 +1022,7 @@ async function undoConfirmation() {
 
     if (!canUndoConfirmation()) {
         const deadlineDate = formatDeadlineDate();
-        const deadlineText = deadlineDate ? ` até ${deadlineDate}` : '';
+        const deadlineText = deadlineDate ? ` em ${deadlineDate}` : '';
         showConfirmationMessage(`O prazo para desfazer a confirmação expirou${deadlineText}.`, 'error');
         return;
     }
